@@ -41,6 +41,7 @@ public:
   static uint16_t frameColor;     // item frame
   static uint16_t cursorColor;    // focused fill
   static uint16_t backgroundColor;
+  static MenuItem* selectedItem;
   MenuItem();
   MenuItem(const String& titleStr, int tg = 0, CALLBACK_MENUITEM cb = 0, MenuItem* sub[] = 0);
   MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, MenuItem* sub[] = 0);

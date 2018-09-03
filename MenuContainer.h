@@ -5,7 +5,6 @@
 
 class MenuContainer : public MenuItem {
 private:
-  MenuItem* selectedItem;
   Rect _cursorRect;
   bool _moving = true;
 

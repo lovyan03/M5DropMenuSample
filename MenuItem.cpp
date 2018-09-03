@@ -6,9 +6,10 @@ uint8_t MenuItem::itemHeight = 20;
 uint16_t MenuItem::itemWidth = 200;
 uint16_t MenuItem::fontColor = 0xFFFF;
 uint16_t MenuItem::fillColor = 0x0410;
-uint16_t MenuItem::frameColor = 0x841F;
+uint16_t MenuItem::frameColor = 0x630C;
 uint16_t MenuItem::cursorColor = 0x421F;
 uint16_t MenuItem::backgroundColor = 0x0000;
+MenuItem* MenuItem::selectedItem = 0;
 
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
@@ -176,16 +177,23 @@ void MenuItem::OnEnter() {
 void MenuItemBoolean::DrawSwitch(int mode)
 {
   Rect area ( rect.x + rect.w * 3 / 4
-            , rect.y + rect.h  / 6
+            , rect.y + rect.h / 6
             , rect.w * 1 / 6
-            , rect.h * 2 / 3);
-  M5.Lcd.drawRect(area.x, area.y, area.w, area.h, backgroundColor);
-  area.x += 1;  area.y += 1;  area.w -= 2;  area.h -= 2;  
-  M5.Lcd.fillRect(area.x, area.y,area.w, area.h, fillColor);
+            , rect.h -(rect.h / 6)*2);
+  M5.Lcd.drawRect(area.x+1, area.y, area.w-2, area.h, frameColor);
+  M5.Lcd.drawRect(area.x, area.y+1, area.w, area.h-2, frameColor);
+  area.x += 2;  area.y += 2;  area.w -= 4;  area.h -= 4;
+  int16_t w = area.w * 2 / 3;
   switch (mode){
-  case 0:    M5.Lcd.fillRect(area.x           , area.y, area.w * 2/3, area.h, frameColor);  break;
-  default:   M5.Lcd.fillRect(area.x + area.w/6, area.y, area.w * 2/3, area.h, frameColor);  break;
-  case 1:    M5.Lcd.fillRect(area.x + area.w/3, area.y, area.w * 2/3, area.h, fontColor);   break;
+  case 0:    M5.Lcd.fillRect(area.x    , area.y, w       , area.h, selectedItem==this ? cursorColor:fillColor);
+             M5.Lcd.fillRect(area.x + w, area.y, area.w-w, area.h, backgroundColor);
+             break;
+  default:   M5.Lcd.fillRect(area.x, area.y, area.w, area.h, backgroundColor);
+             M5.Lcd.fillRect(area.x+(area.w-w)/2, area.y, w, area.h, cursorColor);
+             break;  
+  case 1:    M5.Lcd.fillRect(area.x + area.w-w, area.y, w       , area.h, fontColor);
+             M5.Lcd.fillRect(area.x           , area.y, area.w-w, area.h, backgroundColor);
+             break;
   }
 }
   
@@ -196,7 +204,7 @@ void MenuItemBoolean::OnEnter(){
     delay(5);
   } while (M5.BtnC.isPressed());
   value = !value;
-  OnAfterDraw();
+  DrawSwitch(value);
 }
 void MenuItemBoolean::OnAfterDraw(){
   DrawSwitch(value);
