@@ -18,6 +18,8 @@ typedef struct Rect {
   Rect (int16_t xpos = 0, int16_t ypos = 0, int16_t width = 0, int16_t height = 0): x(xpos), y(ypos), w(width), h(height) {}
   Rect (const Rect& src) : x(src.x), y(src.y), w(src.w), h(src.h) {}
   bool equal(const Rect& rhs) const { return x == rhs.x && y == rhs.y && w == rhs.w && h == rhs.h; }
+  int16_t Bottom() const { return y+h; }
+  int16_t Right() const { return x+w; }
   Rect mixRect(const Rect& dst) const {
     return Rect( ((x + (x < dst.x) - (x > dst.x)) + dst.x) / 2
                , ((y + (y < dst.y) - (y > dst.y)) + dst.y) / 2
@@ -26,7 +28,6 @@ typedef struct Rect {
                );
   }
   void Inflate(int inc) { x-=inc; y-=inc; w+=inc*2; h+=inc*2; };
-  bool MoveAndErase(const Rect& destRect, uint16_t bgcol, bool force = false);
 };
 
 typedef class MenuItem;
@@ -34,13 +35,13 @@ typedef void (* CALLBACK_MENUITEM)(MenuItem *);
 
 typedef class MenuItem {
 public:
-  static uint8_t nestOffset;      // nest x offset
-  static uint8_t itemHeight;
-  static uint16_t itemWidth;
+  static int8_t nestOffset;     // nest x offset
+  static int8_t itemHeight;
+  static int16_t itemWidth;
   static uint16_t fontColor;
-  static uint16_t fillColor;      // item fill 
-  static uint16_t frameColor;     // item frame
-  static uint16_t cursorColor;    // focused fill
+  static uint16_t fillColor;    // item fill 
+  static uint16_t frameColor;   // item frame
+  static uint16_t cursorColor;  // focused fill
   static uint16_t backgroundColor;
   static MenuItem* selectedItem;
   MenuItem();
@@ -52,7 +53,8 @@ public:
 
   int16_t UpdateDestRect(int16_t x = 0, int16_t y = 0);
   void DestRectYScroll(int16_t add_y);
-  bool Draw(bool force, const MenuItem* forceItem = 0);
+  bool Move();
+  MenuItem* Draw(bool force, const MenuItem* forceItem = 0);
   void Hide();
 
   virtual void OnEnter();

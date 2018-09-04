@@ -8,11 +8,22 @@ private:
   Rect _cursorRect;
   bool _moving = true;
 
+  void ScrollSubitemArea(MenuItem* mi) {
+    int scroll = 0;
+    for (int i = 0; mi->subItems[i]; ++i) {
+      if (mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y > TFT_WIDTH) {
+        scroll = mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y - TFT_WIDTH;
+      }
+    }
+    if (scroll > 0) {
+      DestRectYScroll(-scroll);
+    }
+  }
+
 public:
   MenuContainer() : MenuItem() {};
   MenuContainer(const String& t, MenuItem* sub[] = 0)
   : MenuItem(t, sub) {};
-
 
   void begin() {
     selectedItem = subItems[0];
@@ -23,8 +34,7 @@ public:
     destRect.h = itemHeight/2;
     UpdateDestRect();
   }
-
-
+  int16_t lastY = 0;
   void loop(bool force = false) {
     if (M5.BtnA.wasPressed())
     { // 親階層を選択
@@ -35,6 +45,7 @@ public:
           selectedItem->subItems[i]->Hide();
         }
         UpdateDestRect();
+        ScrollSubitemArea(selectedItem->parentItem);
       }
     }
     if (M5.BtnB.wasPressed())
@@ -59,15 +70,7 @@ public:
         force = true;
         UpdateDestRect();
 
-        int scroll = 0;
-        for (int i = 0; mi->subItems[i]; ++i) {
-          if (mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y > TFT_WIDTH) {
-            scroll = mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y - TFT_WIDTH;
-          }
-        }
-        if (scroll > 0) {
-          DestRectYScroll(-scroll);
-        }
+        ScrollSubitemArea(mi);
       } else {
         MenuItem* mi = selectedItem;
         while (mi && mi != this && !mi->callback) {
@@ -85,6 +88,9 @@ public:
       }
     } 
     if (_moving || force) {
+      bool topErase = (subItems[0] && subItems[0]->rect.y != subItems[0]->destRect.y);
+      _moving = Move();
+      MenuItem* mi = 0;
       if (!_cursorRect.equal(selectedItem->destRect)) { // カーソル移動
         const Rect& c = _cursorRect;
         Rect r = c.mixRect(selectedItem->destRect);
@@ -94,13 +100,17 @@ public:
         if (c.x+c.w > r.x+r.w) M5.Lcd.fillRect( r.x+r.w, c.y , (c.x+c.w)-(r.x+r.w),c.h , backgroundColor);
         _cursorRect = r;
         _moving = true;
-        bool topErase = (subItems[0] && subItems[0]->rect.y != subItems[0]->destRect.y);
-        Draw(force, selectedItem);
-        if (topErase && 0 < subItems[0]->rect.y){
-          M5.Lcd.fillRect( subItems[0]->rect.x, 0, subItems[0]->rect.w, subItems[0]->rect.y, backgroundColor);
-        }
-      } else {
-        _moving = Draw(force);
+        mi = selectedItem;
+      }
+      
+      mi = Draw(_moving || force, mi);
+      int16_t ly = mi->rect.Bottom();
+      if (ly < lastY) {
+        M5.Lcd.fillRect( mi->rect.x, ly, mi->rect.w, lastY - ly, backgroundColor);
+      }
+      lastY = ly;
+      if (topErase && 0 < subItems[0]->rect.y){
+        M5.Lcd.fillRect( subItems[0]->rect.x, 0, subItems[0]->rect.w, subItems[0]->rect.y, backgroundColor);
       }
       M5.Lcd.setTextColor(0xFFFF, cursorColor);
       M5.Lcd.setCursor( selectedItem->rect.x + 10, selectedItem->rect.y + selectedItem->rect.h / 3);
@@ -109,7 +119,7 @@ public:
       M5.Lcd.print(selectedItem->title);
       selectedItem->OnAfterDraw();
     }
-  }  
+  }
 };
 
 #endif

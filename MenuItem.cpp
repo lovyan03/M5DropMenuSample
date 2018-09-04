@@ -1,9 +1,9 @@
 
 #include "MenuItem.h"
 
-uint8_t MenuItem::nestOffset = 10;
-uint8_t MenuItem::itemHeight = 20;
-uint16_t MenuItem::itemWidth = 200;
+int8_t MenuItem::nestOffset = 10;
+int8_t MenuItem::itemHeight = 20;
+int16_t MenuItem::itemWidth = 200;
 uint16_t MenuItem::fontColor = 0xFFFF;
 uint16_t MenuItem::fillColor = 0x0410;
 uint16_t MenuItem::frameColor = 0x630C;
@@ -93,52 +93,50 @@ void MenuItem::DestRectYScroll(int16_t add_y)
   }
 }
 
-bool Rect::MoveAndErase(const Rect& destRect, uint16_t bgcol, bool force) {
-  bool res = (destRect != *this);
-  if (force || res) {
-    Rect r = mixRect(destRect);
-
-    //if (y   < r.y    ) M5.Lcd.fillRect( x , y      , w, r.y - y        , bgcol);
-    if (y+h > r.y+r.h) M5.Lcd.fillRect( x , r.y+r.h, w, (y+h)-(r.y+r.h), bgcol);
-    //if (x   < r.x    ) M5.Lcd.fillRect( x , y      , r.x-x          ,h , bgcol);
-    //if (x+w > r.x+r.w) M5.Lcd.fillRect( r.x+r.w, y , (x+w)-(r.x+r.w),h , bgcol);
-
-    *this = r;
+bool MenuItem::Move()
+{
+  bool res = !rect.equal(destRect);
+  if (res) rect = rect.mixRect(destRect);
+  if (subItems) {
+    for (uint8_t i = 0; subItems[i]; ++i) {
+      res = subItems[i]->Move() || res;
+    }
   }
   return res;
 }
-bool MenuItem::Draw(bool force, const MenuItem* forceItem)
+
+MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
 {
-  bool res = rect.MoveAndErase(destRect, backgroundColor, force);
   if (forceItem && (this == forceItem->parentItem || this->parentItem == forceItem->parentItem)) force = true;
-  if ((res || force) && rect.w && rect.h && rect.y > -itemHeight) {
+  if (force && rect.w && rect.h && rect.y > -itemHeight/2) {
     M5.Lcd.drawRect( rect.x, rect.y, rect.w, rect.h, frameColor);
     if (forceItem != this) {
       M5.Lcd.fillRect( rect.x+1, rect.y+1, rect.w-2, rect.h-2, fillColor);
-      M5.Lcd.setTextColor(0xFFFF, fillColor);
-      M5.Lcd.setCursor( rect.x + 10, rect.y + rect.h / 3);
-      M5.Lcd.print(title);
+      if (rect.y + rect.h > 0) {
+        M5.Lcd.setCursor( rect.x + 10, rect.y + rect.h / 3);
+        M5.Lcd.setTextColor(0xFFFF, fillColor);
+        M5.Lcd.print(title);
+      }
     }
     OnAfterDraw();
   }
+  MenuItem* res = this;
   if (subItems) {
-    uint8_t i = 0;
-    bool subDraw = false;
-    for (; subItems[i]; ++i) {
-      if (!subItems[i]->visible) continue;
-      subDraw = true;
-      res = subItems[i]->Draw(force, forceItem) || res;
+    for (uint8_t i = 0; subItems[i]; ++i) {
+      if (subItems[i]->visible) {
+        res = subItems[i]->Draw(force, forceItem);
+      }
     }
-    if (res && subDraw) {
-      --i;
+    if (res != this) {
       // right top area erase
-      M5.Lcd.fillRect( rect.x+rect.w, 0, nestOffset, rect.y + rect.h, backgroundColor);
+      M5.Lcd.fillRect( rect.Right(), 0, nestOffset, rect.Bottom(), backgroundColor);
 
+      int y = max(0, rect.Bottom());
       // left side area erase
-      M5.Lcd.fillRect( 0
-                     , rect.y+rect.h
-                     , subItems[i]->rect.x
-                     , (subItems[i]->rect.y+subItems[i]->rect.h)-(rect.y+rect.h)
+      M5.Lcd.fillRect( rect.x
+                     , y
+                     , nestOffset
+                     , (res->rect.Bottom()) - y
                      , backgroundColor);
     }
   }
@@ -194,8 +192,8 @@ void MenuItemBoolean::DrawSwitch(int mode)
   default:   M5.Lcd.fillRect(area.x, area.y, area.w, area.h, backgroundColor);
              M5.Lcd.fillRect(area.x+(area.w-w)/2, area.y, w, area.h, cursorColor);
              break;  
-  case 1:    M5.Lcd.fillRect(area.x + area.w-w, area.y, w       , area.h, fontColor);
-             M5.Lcd.fillRect(area.x           , area.y, area.w-w, area.h, backgroundColor);
+  case 1:    M5.Lcd.fillRect(area.Right()-w, area.y, w       , area.h, fontColor);
+             M5.Lcd.fillRect(area.x        , area.y, area.w-w, area.h, backgroundColor);
              break;
   }
 }
