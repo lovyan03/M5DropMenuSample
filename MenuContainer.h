@@ -79,6 +79,7 @@ public:
         if (mi->callback) {
           mi->callback(selectedItem);
           force = true;
+          M5.Lcd.fillScreen(backgroundColor);
         }
       }
     }

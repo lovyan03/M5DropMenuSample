@@ -3,6 +3,7 @@
 #include <SD.h>
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
+#include "DHT12.h"
 
 MenuContainer _menu;
 
@@ -13,7 +14,7 @@ void setup() {
   
 
   _menu.callback = CallBackMenuItem;
-  _menu.SetSubItems(new MenuItem*[4]
+  _menu.SetSubItems(new MenuItem*[5]
                      { new MenuItem("tree sample", new MenuItem*[4]
                        { new MenuItem("sub 1", new MenuItem*[4]
                          { new MenuItem("sub 1-1")
@@ -35,6 +36,10 @@ void setup() {
                          }            )
                        , 0
                        }            )
+                     , new MenuItem("Sensor Demo", new MenuItem*[2]
+                       { new MenuItem("DHT12", CallBackDHT12)
+                       , 0
+                       } )
                      , new MenuItem("GPIO switch", CallBackGPIOtest, new MenuItem*[5]
                        { new MenuItemBoolean("GPIO16",16)
                        , new MenuItemBoolean("GPIO17",17)
@@ -47,10 +52,13 @@ void setup() {
                      }
                    );
   _menu.begin();
+
+  Wire.begin();
 }
 void loop() {
   M5.update();
   DrawButtons("   Back","   Next","    Ok");
+  delay(1);
   _menu.loop();
 }
 
@@ -69,6 +77,17 @@ void CallBackGPIOtest(MenuItem* sender)
 
   pinMode(mi->tag, OUTPUT);
   digitalWrite(mi->tag, mi->value);
+}
+
+void CallBackDHT12(MenuItem* sender) 
+{
+  DHT12 dht;
+  dht.setup();
+  while (!M5.BtnA.isPressed()) {
+    M5.update();
+    dht.loop();
+    DrawButtons("   Back","","");
+  }
 }
 
 void CallBackSDtest(MenuItem* sender) 
@@ -100,7 +119,6 @@ void FileView(File ff){
       M5.update();
     }
   }
-  M5.Lcd.clear(0);
 }
 
 void DrawButton(Rect r, uint16_t color, uint16_t bgColor, const char* title)
