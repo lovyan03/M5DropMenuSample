@@ -39,22 +39,21 @@ void MenuItemSD::OnEnter() {
 
 void MenuItemSD::OnAfterDraw() {
   if (path.length() == 0) return;
-  Rect area ( rect.x + 5
-            , rect.y + (rect.h - 10) / 2
-            , 10
-            , 10);
+  Rect area ( rect.x + 7
+            , rect.y + (rect.h - 8) / 2
+            , 8
+            , 8);
   if (isDir) {
     M5.Lcd.fillRect(area.x, area.y+1, area.w  , area.h-1, 0x0ff0);
-    M5.Lcd.drawLine(area.x, area.y  , area.x+3, area.y  , 0x0ff0);
-    M5.Lcd.drawLine(area.x, area.y+2, area.x+9, area.y+1, fillColor);
+    M5.Lcd.drawLine(area.x, area.y  , area.x+2, area.y  , 0x0ff0);
+    M5.Lcd.drawLine(area.x, area.y+2, area.x+7, area.y+1, fillColor);
   } else {
-    M5.Lcd.fillRect(area.x, area.y+1, area.w-1, area.h-1, 0xFFFF);
-    M5.Lcd.drawLine(area.x, area.y  , area.x + area.w-3, area.y, 0xFFFF);
-    M5.Lcd.drawLine(area.x+9, area.y+3, area.x+9, area.y+9, 0xFFFF);
-    M5.Lcd.drawLine(area.x+6, area.y  , area.x+6, area.y+3, 0);
-    M5.Lcd.drawLine(area.x+6, area.y+3, area.x+9, area.y+3, 0);
-    M5.Lcd.drawLine(area.x+2, area.y+3, area.x+4, area.y+3, 0);
-    M5.Lcd.drawLine(area.x+2, area.y+5, area.x+7, area.y+5, 0);
-    M5.Lcd.drawLine(area.x+2, area.y+7, area.x+7, area.y+7, 0);
+    M5.Lcd.fillRect(area.x, area.y+1, area.w, area.h - 1, 0xFFFF);
+    M5.Lcd.drawLine(area.x, area.y  , area.x+area.w - 2, area.y, 0xFFFF);
+    M5.Lcd.drawLine(area.x+5, area.y  , area.x+5, area.y+2, 0);
+    M5.Lcd.drawLine(area.x+5, area.y+2, area.x+7, area.y+2, 0);
+    M5.Lcd.drawLine(area.x+1, area.y+2, area.x+3, area.y+2, 0);
+    M5.Lcd.drawLine(area.x+1, area.y+4, area.x+6, area.y+4, 0);
+    M5.Lcd.drawLine(area.x+1, area.y+6, area.x+6, area.y+6, 0);
   }
 }
