@@ -9,22 +9,29 @@ void MenuItemSD::OnEnter() {
   DisposeSubItems();
   SD.begin();
 
-  MenuItem* items[maxFileCount + 1];
+  MenuItemSD* items[maxFileCount + 1];
   File root = SD.open(path.length() ? path : "/");
   File file = root.openNextFile();
-  uint16_t i;
-  for (i = 0; file && i < maxFileCount; ++i) {
+  uint16_t count;
+  uint16_t dirCount = 0;
+  for (count = 0; file && count < maxFileCount; ++count) {
     String ptmp = file.name();
-    items[i] = new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length()));
+    items[count] = new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length()));
+    if (file.isDirectory()) ++dirCount;
     file = root.openNextFile();
   }
   root.close();
-  items[i] = 0;
-
-  if (i > 0) {
-    MenuItem** sub = new MenuItem*[i + 1];
-    memcpy(sub, items, i * (sizeof(MenuItem*)));
-    sub[i] = 0;
+  if (count > 0) {
+    MenuItem** sub = new MenuItem*[count + 1];
+    int iFile = dirCount - 1, iDir = -1;
+    for (int i = 0; i < count; ++i) {
+      if (items[i]->isDir) {
+        sub[++iDir] = items[i];
+      } else {
+        sub[++iFile] = items[i];
+      }
+    }
+    sub[count] = 0;
     SetSubItems(sub);
   }
   MenuItem::OnEnter();
