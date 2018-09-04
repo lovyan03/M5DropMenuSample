@@ -111,7 +111,7 @@ bool MenuItem::Draw(bool force, const MenuItem* forceItem)
 {
   bool res = rect.MoveAndErase(destRect, backgroundColor, force);
   if (forceItem && (this == forceItem->parentItem || this->parentItem == forceItem->parentItem)) force = true;
-  if ((res || force) && rect.w && rect.h) {
+  if ((res || force) && rect.w && rect.h && rect.y > -itemHeight) {
     M5.Lcd.drawRect( rect.x, rect.y, rect.w, rect.h, frameColor);
     if (forceItem != this) {
       M5.Lcd.fillRect( rect.x+1, rect.y+1, rect.w-2, rect.h-2, fillColor);
@@ -131,10 +131,13 @@ bool MenuItem::Draw(bool force, const MenuItem* forceItem)
     }
     if (res && subDraw) {
       --i;
+      // right top area erase
       M5.Lcd.fillRect( rect.x+rect.w, 0, nestOffset, rect.y + rect.h, backgroundColor);
-      M5.Lcd.fillRect( rect.x
+
+      // left side area erase
+      M5.Lcd.fillRect( 0
                      , rect.y+rect.h
-                     , subItems[i]->rect.x - rect.x
+                     , subItems[i]->rect.x
                      , (subItems[i]->rect.y+subItems[i]->rect.h)-(rect.y+rect.h)
                      , backgroundColor);
     }
@@ -178,11 +181,11 @@ void MenuItemBoolean::DrawSwitch(int mode)
 {
   Rect area ( rect.x + rect.w * 3 / 4
             , rect.y + rect.h / 6
-            , rect.w * 1 / 6
+            , rect.w / 6
             , rect.h -(rect.h / 6)*2);
   M5.Lcd.drawRect(area.x+1, area.y, area.w-2, area.h, frameColor);
   M5.Lcd.drawRect(area.x, area.y+1, area.w, area.h-2, frameColor);
-  area.x += 2;  area.y += 2;  area.w -= 4;  area.h -= 4;
+  area.Inflate(-2);
   int16_t w = area.w * 2 / 3;
   switch (mode){
   case 0:    M5.Lcd.fillRect(area.x    , area.y, w       , area.h, selectedItem==this ? cursorColor:fillColor);
@@ -196,7 +199,7 @@ void MenuItemBoolean::DrawSwitch(int mode)
              break;
   }
 }
-  
+
 void MenuItemBoolean::OnEnter(){
   DrawSwitch(-1);
   do {

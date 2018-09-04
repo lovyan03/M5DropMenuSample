@@ -25,6 +25,7 @@ typedef struct Rect {
                , ((h + (h < dst.h) - (h > dst.h)) + dst.h) / 2
                );
   }
+  void Inflate(int inc) { x-=inc; y-=inc; w+=inc*2; h+=inc*2; };
   bool MoveAndErase(const Rect& destRect, uint16_t bgcol, bool force = false);
 };
 

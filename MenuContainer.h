@@ -47,13 +47,27 @@ public:
         selectedItem = parent->subItems[i];
         break;
       }
+      if (selectedItem->destRect.h * 2 + selectedItem->destRect.y > TFT_WIDTH) {
+        DestRectYScroll(-(selectedItem->destRect.h * 2 + selectedItem->destRect.y - TFT_WIDTH));
+      }
     }
     if (M5.BtnC.wasPressed()) { 
       selectedItem->OnEnter();
       if (selectedItem->subItems && selectedItem->subItems[0]) {
+        MenuItem* mi = selectedItem;
         selectedItem = selectedItem->subItems[0];
         force = true;
         UpdateDestRect();
+
+        int scroll = 0;
+        for (int i = 0; mi->subItems[i]; ++i) {
+          if (mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y > TFT_WIDTH) {
+            scroll = mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y - TFT_WIDTH;
+          }
+        }
+        if (scroll > 0) {
+          DestRectYScroll(-scroll);
+        }
       } else {
         MenuItem* mi = selectedItem;
         while (mi && mi != this && !mi->callback) {
@@ -61,17 +75,14 @@ public:
         }
         if (mi->callback) {
           mi->callback(selectedItem);
+          force = true;
         }
       }
     }
-    if (force) { 
-      if (selectedItem->destRect.h * 2 + selectedItem->destRect.y > TFT_WIDTH) {
-        DestRectYScroll(-(selectedItem->destRect.h * 2 + selectedItem->destRect.y - TFT_WIDTH));
-      } else
-      if (selectedItem->destRect.y < 0) {
-        DestRectYScroll(-selectedItem->destRect.y);
+    if (force) {
+      if (selectedItem->destRect.y < itemHeight/2) {
+        DestRectYScroll(-selectedItem->destRect.y + itemHeight );
       }
-      //_moving = true; force = false;
     } 
     if (_moving || force) {
       if (!_cursorRect.equal(selectedItem->destRect)) { // カーソル移動
@@ -98,7 +109,6 @@ public:
       M5.Lcd.print(selectedItem->title);
       selectedItem->OnAfterDraw();
     }
-    delay(10);
   }  
 };
 
