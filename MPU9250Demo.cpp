@@ -68,8 +68,6 @@ void MPU9250Demo::loop()
   IMU.my = (float)IMU.magCount[1]*IMU.mRes;
   IMU.mz = (float)IMU.magCount[2]*IMU.mRes;
 
-  int x,y,z;
-
   M5.Lcd.drawLine(_x, 0, _x, TFT_WIDTH, 0);
 
   M5.Lcd.setCursor( 10, 5);
