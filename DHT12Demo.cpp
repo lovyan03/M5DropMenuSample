@@ -1,7 +1,7 @@
-#include "DHT12.h"
+#include "DHT12Demo.h"
 #include <M5Stack.h>
 
-DHT12::DHT12(uint8_t id)
+DHT12Demo::DHT12Demo(uint8_t id)
 {
   _id = (id==0 || id>126) 
       ? 0x5c
@@ -10,13 +10,13 @@ DHT12::DHT12(uint8_t id)
 
 static uint16_t _x = 0;
 
-void DHT12::setup()
+void DHT12Demo::setup()
 {
   M5.Lcd.fillScreen(0);
   M5.Lcd.setCursor(0,0);
   _x = 0;
   for (int i = 0 ; i < 10; ++i) {
-    M5.Lcd.drawLine(0,230 - i * 20, 320, 230 - i * 20, 0x4208);
+    M5.Lcd.drawLine(0,210 - i * 20, 320, 210 - i * 20, 0x4208);
   }
   for (int i = 0 ; i < 16; ++i) {
     M5.Lcd.drawLine(10 + i * 20, 20, 10 + i * 20, 220, 0x4208);
@@ -29,7 +29,7 @@ void DHT12::setup()
   }
 }
 
-void DHT12::loop()
+void DHT12Demo::loop()
 {  
   switch (read()) {
     case 1:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : endTransmission"); return;
@@ -56,7 +56,7 @@ void DHT12::loop()
   M5.Lcd.printf("%4.1f", (float)humidity10 / 10);
 }
 
-uint8_t DHT12::read()
+uint8_t DHT12Demo::read()
 {
   Wire.beginTransmission(_id);
   Wire.write(0);

@@ -1,12 +1,12 @@
-#ifndef _DHT12_h_
-#define _DHT12_h_
+#ifndef _DHT12Demo_h_
+#define _DHT12Demo_h_
 
 #include "Arduino.h"
 
-class DHT12
+class DHT12Demo
 {
 public:
-  DHT12(uint8_t id=0);
+  DHT12Demo(uint8_t id=0);
   void setup();
   void loop();
 private:

@@ -3,12 +3,12 @@
 #include <SD.h>
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
-#include "DHT12.h"
+#include "DHT12Demo.h"
+#include "MPU9250Demo.h"
 
 MenuContainer _menu;
 
 void setup() {
-  
   M5.begin();
   digitalWrite(25,0); // anti speaker noise.
   
@@ -36,8 +36,9 @@ void setup() {
                          }            )
                        , 0
                        }            )
-                     , new MenuItem("Sensor Demo", new MenuItem*[2]
+                     , new MenuItem("Sensor Demo", new MenuItem*[3]
                        { new MenuItem("DHT12", CallBackDHT12)
+                       , new MenuItem("MPU9250", CallBackMPU9250)
                        , 0
                        } )
                      , new MenuItem("GPIO switch", CallBackGPIOtest, new MenuItem*[5]
@@ -81,13 +82,27 @@ void CallBackGPIOtest(MenuItem* sender)
 
 void CallBackDHT12(MenuItem* sender) 
 {
-  DHT12 dht;
-  dht.setup();
+  DHT12Demo obj;
+  obj.setup();
   while (!M5.BtnA.isPressed()) {
     M5.update();
-    dht.loop();
+    obj.loop();
     DrawButtons("   Back","","");
   }
+  M5.Lcd.fillScreen(0);
+}
+
+void CallBackMPU9250(MenuItem* sender) 
+{
+  MPU9250Demo obj;
+  if (obj.setup()) {
+    while (!M5.BtnA.isPressed()) {
+      M5.update();
+      obj.loop();
+      DrawButtons("   Back","","");
+    }
+  }
+  M5.Lcd.fillScreen(0);
 }
 
 void CallBackSDtest(MenuItem* sender) 
@@ -101,6 +116,7 @@ void CallBackSDtest(MenuItem* sender)
     FileView(file);
   }
   file.close();
+  M5.Lcd.fillScreen(0);
 }
 
 void FileView(File ff){
