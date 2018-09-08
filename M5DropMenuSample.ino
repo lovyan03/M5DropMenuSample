@@ -3,6 +3,7 @@
 #include <SD.h>
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
+#include "ADInputDemo.h"
 #include "DHT12Demo.h"
 #include "MPU9250Demo.h"
 
@@ -10,8 +11,8 @@ MenuContainer _menu;
 
 void setup() {
   M5.begin();
-  digitalWrite(25,0); // anti speaker noise.
-  
+
+  dacWrite(25, 0); // anti speaker noise.
 
   _menu.callback = CallBackMenuItem;
   _menu.SetSubItems(new MenuItem*[5]
@@ -32,10 +33,10 @@ void setup() {
                            }            )
                          , new MenuItem("sub 3-2")
                          , new MenuItem("sub 3-3", new MenuItem*[4]
-                           { new MenuItem("sub 3-1-1", new MenuItem*[4]
-                             { new MenuItem("sub 3-1-1-1")
-                             , new MenuItem("sub 3-1-1-2")
-                             , new MenuItem("sub 3-1-1-3")
+                           { new MenuItem("sub 3-3-1", new MenuItem*[4]
+                             { new MenuItem("sub 3-3-1-1")
+                             , new MenuItem("sub 3-3-1-2")
+                             , new MenuItem("sub 3-3-1-3")
                              , 0
                              }            )
                            , new MenuItem("sub 3-1-2")
@@ -46,8 +47,9 @@ void setup() {
                          }            )
                        , 0
                        }            )
-                     , new MenuItem("Sensor Demo", new MenuItem*[3]
-                       { new MenuItem("DHT12", CallBackDHT12)
+                     , new MenuItem("Sensor Demo", new MenuItem*[4]
+                       { new MenuItem("AD35 AD36 Input", CallBackADInput)
+                       , new MenuItem("DHT12", CallBackDHT12)
                        , new MenuItem("MPU9250", CallBackMPU9250)
                        , 0
                        } )
@@ -88,6 +90,18 @@ void CallBackGPIOtest(MenuItem* sender)
 
   pinMode(mi->tag, OUTPUT);
   digitalWrite(mi->tag, mi->value);
+}
+
+void CallBackADInput(MenuItem* sender) 
+{
+  ADInputDemo obj;
+  obj.setup();
+  while (!M5.BtnA.isPressed()) {
+    M5.update();
+    obj.loop();
+    DrawButtons("   Back","","");
+  }
+  M5.Lcd.fillScreen(0);
 }
 
 void CallBackDHT12(MenuItem* sender) 
