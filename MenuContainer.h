@@ -34,7 +34,6 @@ public:
     destRect.h = itemHeight/2;
     UpdateDestRect();
   }
-  int16_t lastY = 0;
   void loop(bool force = false) {
     if (M5.BtnA.wasPressed())
     { // 親階層を選択
@@ -49,7 +48,7 @@ public:
       }
     }
     if (M5.BtnB.wasPressed())
-    { // toggle cursor メニューカーソル位置を順に変更
+    { // メニューカーソル位置を順に変更
       force = true;
       MenuItem *parent = selectedItem->parentItem;
       for (uint8_t i = 0; parent->subItems[i]; ++i) {
@@ -62,7 +61,8 @@ public:
         DestRectYScroll(-(selectedItem->destRect.h * 2 + selectedItem->destRect.y - TFT_WIDTH));
       }
     }
-    if (M5.BtnC.wasPressed()) { 
+    if (M5.BtnC.wasPressed()) 
+    { // メニューアイテムを選択
       selectedItem->OnEnter();
       if (selectedItem->subItems && selectedItem->subItems[0]) {
         MenuItem* mi = selectedItem;
@@ -88,7 +88,6 @@ public:
       }
     } 
     if (_moving || force) {
-      bool topErase = (subItems[0] && subItems[0]->rect.y != subItems[0]->destRect.y);
       _moving = Move();
       MenuItem* mi = 0;
       if (!_cursorRect.equal(selectedItem->destRect)) { // カーソル移動
@@ -102,21 +101,11 @@ public:
         _moving = true;
         mi = selectedItem;
       }
-      
-      mi = Draw(_moving || force, mi);
-      int16_t ly = mi->rect.Bottom();
-      if (ly < lastY) {
-        M5.Lcd.fillRect( mi->rect.x, ly, mi->rect.w, lastY - ly, backgroundColor);
-      }
-      lastY = ly;
-      if (topErase && 0 < subItems[0]->rect.y){
-        M5.Lcd.fillRect( subItems[0]->rect.x, 0, subItems[0]->rect.w, subItems[0]->rect.y, backgroundColor);
-      }
-      M5.Lcd.setTextColor(0xFFFF, cursorColor);
-      M5.Lcd.setCursor( selectedItem->rect.x + 10, selectedItem->rect.y + selectedItem->rect.h / 3);
+
+      mi = Draw(force, mi);
       M5.Lcd.fillRect( selectedItem->rect.x+1, selectedItem->rect.y+1, selectedItem->rect.w-2, selectedItem->rect.h-2, cursorColor);
       M5.Lcd.fillRect( _cursorRect.x+1, _cursorRect.y+1, _cursorRect.w-2, _cursorRect.h-2, cursorColor);
-      M5.Lcd.print(selectedItem->title);
+      selectedItem->DrawTitle();
       selectedItem->OnAfterDraw();
     }
   }

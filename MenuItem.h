@@ -54,12 +54,13 @@ public:
   int16_t UpdateDestRect(int16_t x = 0, int16_t y = 0);
   void DestRectYScroll(int16_t add_y);
   bool Move();
+  void DrawTitle();
   MenuItem* Draw(bool force, const MenuItem* forceItem = 0);
   void Hide();
 
   virtual void OnEnter();
   virtual void OnExit() { }
-  virtual void OnAfterDraw() { }
+  virtual void OnAfterDraw();
 
   CALLBACK_MENUITEM callback = 0;
   int tag = 0;
@@ -70,6 +71,9 @@ public:
   Rect rect;        // displayPoint
   Rect destRect;    // destinationPoint
   bool visible;
+protected:
+  bool moving;
+  Rect prevRect;    // previousDisplayPoint
 };
 
 class MenuItemBoolean : public MenuItem {

@@ -24,10 +24,20 @@ void setup() {
                          }            )
                        , new MenuItem("sub 2")
                        , new MenuItem("sub 3", new MenuItem*[4]
-                         { new MenuItem("sub 3-1")
+                         { new MenuItem("sub 3-1", new MenuItem*[4]
+                           { new MenuItem("sub 3-1-1")
+                           , new MenuItem("sub 3-1-2")
+                           , new MenuItem("sub 3-1-3")
+                           , 0
+                           }            )
                          , new MenuItem("sub 3-2")
                          , new MenuItem("sub 3-3", new MenuItem*[4]
-                           { new MenuItem("sub 3-1-1")
+                           { new MenuItem("sub 3-1-1", new MenuItem*[4]
+                             { new MenuItem("sub 3-1-1-1")
+                             , new MenuItem("sub 3-1-1-2")
+                             , new MenuItem("sub 3-1-1-3")
+                             , 0
+                             }            )
                            , new MenuItem("sub 3-1-2")
                            , new MenuItem("sub 3-1-3")
                            , 0
@@ -149,7 +159,7 @@ void DrawButton(Rect r, uint16_t color, uint16_t bgColor, const char* title)
     M5.Lcd.fillRect(r.x, r.y,       w, h, bgColor);
     M5.Lcd.fillRect(r.x, r.y+r.h-h, w, h, bgColor);
   }
-  M5.Lcd.setCursor(r.x + 1, r.y + h);
+  M5.Lcd.setCursor(r.x, r.y + h);
   M5.Lcd.setTextSize(1);
   M5.Lcd.setTextColor(0xffff, bgColor);
   M5.Lcd.print(title);

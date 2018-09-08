@@ -39,7 +39,7 @@ void MenuItemSD::OnEnter() {
 
 void MenuItemSD::OnAfterDraw() {
   if (path.length() == 0) return;
-  Rect area ( rect.x + 7
+  Rect area ( rect.x + 11
             , rect.y + (rect.h - 8) / 2
             , 8
             , 8);
