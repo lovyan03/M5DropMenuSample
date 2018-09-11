@@ -3,16 +3,14 @@
 #include <SD.h>
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
-#include "ADInputDemo.h"
-#include "DHT12Demo.h"
-#include "MPU9250Demo.h"
+#include "Demo\ADInputDemo.h"
+#include "Demo\DHT12Demo.h"
+#include "Demo\MPU9250Demo.h"
 
 MenuContainer _menu;
 
 void setup() {
   M5.begin();
-
-  dacWrite(25, 0); // anti speaker noise.
 
   _menu.callback = CallBackMenuItem;
   _menu.SetSubItems(new MenuItem*[5]
