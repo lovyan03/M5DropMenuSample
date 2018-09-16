@@ -1,67 +1,66 @@
 
 #include <M5Stack.h>
+#include <vector>
 #include <SD.h>
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
+#include "MenuItemBLE.h"
 #include "Demo\ADInputDemo.h"
 #include "Demo\DHT12Demo.h"
 #include "Demo\MPU9250Demo.h"
+#include "Demo\BLEDemo.h"
+#include "Demo\VroomCtrlDemo.h"
 
+typedef std::vector<MenuItem*> submenu;
 MenuContainer _menu;
 
 void setup() {
   M5.begin();
 
   _menu.callback = CallBackMenuItem;
-  _menu.SetSubItems(new MenuItem*[5]
-                     { new MenuItem("tree sample", new MenuItem*[4]
-                       { new MenuItem("sub 1", new MenuItem*[4]
+  _menu.SetSubItems(submenu
+                     { new MenuItem("tree sample", submenu
+                       { new MenuItem("sub 1", submenu
                          { new MenuItem("sub 1-1")
                          , new MenuItem("sub 1-2")
                          , new MenuItem("sub 1-3")
-                         , 0
-                         }            )
+                         } )
                        , new MenuItem("sub 2")
-                       , new MenuItem("sub 3", new MenuItem*[4]
-                         { new MenuItem("sub 3-1", new MenuItem*[4]
+                       , new MenuItem("sub 3", submenu
+                         { new MenuItem("sub 3-1", submenu
                            { new MenuItem("sub 3-1-1")
                            , new MenuItem("sub 3-1-2")
                            , new MenuItem("sub 3-1-3")
-                           , 0
-                           }            )
+                           } )
                          , new MenuItem("sub 3-2")
-                         , new MenuItem("sub 3-3", new MenuItem*[4]
-                           { new MenuItem("sub 3-3-1", new MenuItem*[4]
+                         , new MenuItem("sub 3-3", submenu
+                           { new MenuItem("sub 3-3-1", submenu
                              { new MenuItem("sub 3-3-1-1")
                              , new MenuItem("sub 3-3-1-2")
                              , new MenuItem("sub 3-3-1-3")
-                             , 0
-                             }            )
+                             } )
                            , new MenuItem("sub 3-1-2")
                            , new MenuItem("sub 3-1-3")
-                           , 0
-                           }            )
-                         , 0
-                         }            )
-                       , 0
-                       }            )
-                     , new MenuItem("Sensor Demo", new MenuItem*[4]
-                       { new MenuItem("AD35 AD36 Input", CallBackADInput)
-                       , new MenuItem("DHT12", CallBackDHT12)
-                       , new MenuItem("MPU9250", CallBackMPU9250)
-                       , 0
+                           } )
+                         } )
                        } )
-                     , new MenuItem("GPIO switch", CallBackGPIOtest, new MenuItem*[5]
+                     , new MenuItem("Sensor Demo", submenu
+                       { new MenuItem("AD35 AD36 Input", CallBackADInput)
+                       , new MenuItem("DHT12"  , CallBackDHT12)
+                       , new MenuItem("MPU9250", CallBackMPU9250)
+                       , new MenuItem("BLE Vroom Controller", CallBackVroom)
+                       } )
+                     , new MenuItem("GPIO switch", CallBackGPIOtest, submenu
                        { new MenuItemBoolean("GPIO16",16)
                        , new MenuItemBoolean("GPIO17",17)
                        , new MenuItemBoolean("GPIO 2", 2)
                        , new MenuItemBoolean("GPIO 5", 5)
-                       , 0
                        } )
+                     , new MenuItemBLE("BLE"   , CallBackBLEDemo)
                      , new MenuItemSD("SD card", CallBackSDtest)
-                     , 0
                      }
                    );
+//*/
   _menu.begin();
 
   Wire.begin();
@@ -123,6 +122,35 @@ void CallBackMPU9250(MenuItem* sender)
       obj.loop();
       DrawButtons("   Back","","");
     }
+  }
+  M5.Lcd.fillScreen(0);
+}
+
+void CallBackVroom(MenuItem* sender) 
+{
+  VroomCtrlDemo obj;
+  if (obj.setup()) {
+    while (!M5.BtnA.isPressed()) {
+      M5.update();
+      obj.loop();
+      DrawButtons("   Back","","");
+    }
+    obj.close();
+  }
+  M5.Lcd.fillScreen(0);
+}
+
+void CallBackBLEDemo(MenuItem* sender) 
+{
+  MenuItemBLE* mi = static_cast<MenuItemBLE*>(sender);
+  if (!mi) return;
+  if (!mi->pRemoteChar) return;
+  BLEDemo obj;
+  obj.setup(mi->pRemoteChar);
+  while (!M5.BtnA.isPressed()) {
+    M5.update();
+    obj.loop();
+    DrawButtons("   Back","","");
   }
   M5.Lcd.fillScreen(0);
 }

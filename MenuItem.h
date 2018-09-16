@@ -2,6 +2,7 @@
 #define _MenuItem_H_
 
 #include <M5Stack.h>
+#include <vector>
 
 #ifndef min
   #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -45,15 +46,21 @@ public:
   static uint16_t backgroundColor;
   static MenuItem* selectedItem;
   MenuItem();
-  MenuItem(const String& titleStr, int tg = 0, CALLBACK_MENUITEM cb = 0, MenuItem* sub[] = 0);
-  MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, MenuItem* sub[] = 0);
-  MenuItem(const String& titleStr, MenuItem* sub[]);
-  void SetSubItems(MenuItem* sub[] = 0);
+  MenuItem(const String& titleStr, int tg = 0, CALLBACK_MENUITEM cb = 0);
+  MenuItem(const String& titleStr, CALLBACK_MENUITEM cb);
+  //MenuItem(const String& titleStr, MenuItem* sub[]);
+  MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub);
+  MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub);
+  MenuItem(const String& titleStr, const std::vector<MenuItem*> &sub);
+  uint16_t SubCount() const;
+  void AddSubItem(MenuItem* item);
+  void SetSubItems(const std::vector<MenuItem*> &sub);
   void DisposeSubItems();
-
+  void ParentUpdateDestRect();
   int16_t UpdateDestRect(int16_t x = 0, int16_t y = 0);
   void DestRectYScroll(int16_t add_y);
   bool Move();
+  void DrawTitle(const String& str);
   void DrawTitle();
   MenuItem* Draw(bool force, const MenuItem* forceItem = 0);
   void Hide();
@@ -67,7 +74,7 @@ public:
   String title;
 
   MenuItem* parentItem = 0;
-  MenuItem** subItems = 0;
+  std::vector<MenuItem*> subItems;
   Rect rect;        // displayPoint
   Rect destRect;    // destinationPoint
   bool visible;

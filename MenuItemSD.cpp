@@ -1,28 +1,26 @@
 #include "MenuItemSD.h"
 #include "SD.h"
 
-uint16_t MenuItemSD::maxFileCount = 100;
-
 void MenuItemSD::OnEnter() {
   //M5.Lcd.setCursor( rect.x + rect.w / 3, rect.y + rect.h / 3);
 
   DisposeSubItems();
   SD.begin();
 
-  MenuItemSD* items[maxFileCount + 1];
+  std::vector<MenuItemSD*> items;
   File root = SD.open(path.length() ? path : "/");
   File file = root.openNextFile();
   uint16_t count;
   uint16_t dirCount = 0;
-  for (count = 0; file && count < maxFileCount; ++count) {
+  while (file) {
     String ptmp = file.name();
-    items[count] = new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length()));
+    items.push_back(new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length())));
     if (file.isDirectory()) ++dirCount;
     file = root.openNextFile();
   }
   root.close();
-  if (count > 0) {
-    MenuItem** sub = new MenuItem*[count + 1];
+  if (!items.empty()) {
+    std::vector<MenuItem*> sub(items.size());
     int iFile = dirCount - 1, iDir = -1;
     for (int i = 0; i < count; ++i) {
       if (items[i]->isDir) {

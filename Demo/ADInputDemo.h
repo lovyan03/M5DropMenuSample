@@ -12,7 +12,6 @@ public:
     pinMode(35,INPUT);
     pinMode(36,INPUT);
     dacWrite(25, 0); // anti speaker noise.
-    pinMode(25,INPUT);
 
     M5.Lcd.fillScreen(0);
     M5.Lcd.setCursor(0,0);

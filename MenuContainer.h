@@ -10,7 +10,7 @@ private:
 
   void ScrollSubitemArea(MenuItem* mi) {
     int scroll = 0;
-    for (int i = 0; mi->subItems[i]; ++i) {
+    for (uint16_t i = 0; i != mi->subItems.size(); ++i) {
       if (mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y > TFT_WIDTH) {
         scroll = mi->subItems[i]->destRect.h * 2 + mi->subItems[i]->destRect.y - TFT_WIDTH;
       }
@@ -22,12 +22,12 @@ private:
 
 public:
   MenuContainer() : MenuItem() {};
-  MenuContainer(const String& t, MenuItem* sub[] = 0)
+  MenuContainer(const String& t, const std::vector<MenuItem*> &sub)
   : MenuItem(t, sub) {};
 
   void begin() {
     selectedItem = subItems[0];
-    for (uint8_t i = 0; subItems[i]; ++i) {
+    for (uint16_t i = 0; i != subItems.size(); ++i) {
       subItems[i]->visible = true;
     }
     destRect.w = 0;     // root item hidden
@@ -40,7 +40,7 @@ public:
       force = true;
       if (selectedItem->parentItem != this) {
         selectedItem = selectedItem->parentItem;
-        for (uint8_t i = 0; selectedItem->subItems[i]; ++i) {
+        for (uint16_t i = 0; i != selectedItem->subItems.size(); ++i) {
           selectedItem->subItems[i]->Hide();
         }
         UpdateDestRect();
@@ -51,10 +51,9 @@ public:
     { // メニューカーソル位置を順に変更
       force = true;
       MenuItem *parent = selectedItem->parentItem;
-      for (uint8_t i = 0; parent->subItems[i]; ++i) {
+      for (uint16_t i = 0; i != parent->subItems.size(); ++i) {
         if (parent->subItems[i] != selectedItem) continue;
-        if (!parent->subItems[++i]) i = 0;
-        selectedItem = parent->subItems[i];
+        selectedItem = parent->subItems[(i+1) % parent->subItems.size()];
         break;
       }
       if (selectedItem->destRect.h * 2 + selectedItem->destRect.y > TFT_WIDTH) {
@@ -64,7 +63,7 @@ public:
     if (M5.BtnC.wasPressed()) 
     { // メニューアイテムを選択
       selectedItem->OnEnter();
-      if (selectedItem->subItems && selectedItem->subItems[0]) {
+      if (!selectedItem->subItems.empty()) {
         MenuItem* mi = selectedItem;
         selectedItem = selectedItem->subItems[0];
         force = true;

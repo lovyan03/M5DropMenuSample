@@ -3,7 +3,7 @@
 
 int8_t MenuItem::nestOffset = 10;
 int8_t MenuItem::itemHeight = 20;
-int16_t MenuItem::itemWidth = 200;
+int16_t MenuItem::itemWidth = 240;
 uint16_t MenuItem::fontColor = 0xFFFF;
 uint16_t MenuItem::fillColor = 0x0410;
 uint16_t MenuItem::frameColor = 0x630C;
@@ -21,20 +21,45 @@ bool operator!=(const Rect& lhs, const Rect& rhs) {
 
 MenuItem::MenuItem() {}
 
-MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb, MenuItem* sub[])
+MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb)
 : title(titleStr)
 , callback(cb)
-, subItems(sub)
+, destRect(0,0,itemWidth, itemHeight)
+, visible(false)
+, tag(tg)
+{
+}
+MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb)
+: title(titleStr)
+, callback(cb)
+, destRect(0,0,itemWidth, itemHeight)
+, visible(false)
+, tag(0)
+{
+}
+/*
+MenuItem::MenuItem(const String& titleStr, MenuItem* sub[])
+: title(titleStr)
+, destRect(0,0,itemWidth, itemHeight)
+, visible(false)
+, tag(0)
+{
+  SetSubItems(sub);
+}
+//*/
+
+MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub)
+: title(titleStr)
+, callback(cb)
 , destRect(0,0,itemWidth, itemHeight)
 , visible(false)
 , tag(tg)
 {
   SetSubItems(sub);
 }
-MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, MenuItem* sub[])
+MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub)
 : title(titleStr)
 , callback(cb)
-, subItems(sub)
 , destRect(0,0,itemWidth, itemHeight)
 , visible(false)
 , tag(0)
@@ -42,34 +67,50 @@ MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, MenuItem* sub[]
   SetSubItems(sub);
 }
 
-MenuItem::MenuItem(const String& titleStr, MenuItem* sub[])
+MenuItem::MenuItem(const String& titleStr, const std::vector<MenuItem*> &sub)
 : title(titleStr)
-, subItems(sub)
 , destRect(0,0,itemWidth, itemHeight)
 , visible(false)
 , tag(0)
 {
   SetSubItems(sub);
 }
+
+
+void MenuItem::AddSubItem(MenuItem* mi)
+{
+  mi->parentItem = this;
+  subItems.push_back(mi);
+}
+/*
 void MenuItem::SetSubItems(MenuItem* sub[])
 {
-  subItems = sub;
-  if (!sub) return;
-  for (uint8_t i = 0; subItems[i]; ++i) {
-    subItems[i]->parentItem = this;
+  for (uint16_t i = 0; sub[i]; ++i) {
+    sub[i]->parentItem = this;
+    subItems.push_back(sub[i]);
   }
 }
+//*/
+void MenuItem::SetSubItems(const std::vector<MenuItem*> &sub)
+{
+  subItems.assign(sub.begin(), sub.end());
+  for (std::vector<MenuItem*>::iterator it = subItems.begin(); it != subItems.end(); ++it) {
+    (*it)->parentItem = this;
+  }
+}
+
 void MenuItem::DisposeSubItems() {
-  if (!subItems) return;
-  for (int i = 0; subItems[i]; ++i) {
+  for (uint16_t i = 0; i != subItems.size(); ++i) {
     subItems[i]->DisposeSubItems();
     delete subItems[i];
     subItems[i] = 0;
   }
-  if (subItems) {
-    delete[] subItems;
-  }
-  subItems = 0;
+  subItems.clear();
+}
+void MenuItem::ParentUpdateDestRect()
+{
+  if (parentItem) parentItem->ParentUpdateDestRect();
+  else UpdateDestRect();
 }
 
 int16_t MenuItem::UpdateDestRect(int16_t x, int16_t y) {
@@ -79,7 +120,7 @@ int16_t MenuItem::UpdateDestRect(int16_t x, int16_t y) {
   }
   x += nestOffset;
   y = destRect.y + destRect.h;
-  for (uint8_t i = 0; subItems && subItems[i]; ++i) {
+  for (uint16_t i = 0; i != subItems.size(); ++i) {
     if (!subItems[i]->visible) continue;
     y = subItems[i]->UpdateDestRect(x, y);
   }
@@ -88,7 +129,7 @@ int16_t MenuItem::UpdateDestRect(int16_t x, int16_t y) {
 void MenuItem::DestRectYScroll(int16_t add_y)
 {
   destRect.y += add_y;
-  for (uint8_t i = 0; subItems && subItems[i]; ++i) {
+  for (uint16_t i = 0; i != subItems.size(); ++i) {
     if (subItems[i]->visible) subItems[i]->DestRectYScroll(add_y);
   }
 }
@@ -101,10 +142,8 @@ bool MenuItem::Move()
     rect = rect.mixRect(destRect);
   }
   bool sub = false;
-  if (subItems) {
-    for (uint8_t i = 0; subItems[i]; ++i) {
-      sub = subItems[i]->Move() || sub;
-    }
+  for (uint16_t i = 0; i != subItems.size(); ++i) {
+    sub = subItems[i]->Move() || sub;
   }
   return moving || sub;
 }
@@ -112,12 +151,26 @@ bool MenuItem::Move()
 void MenuItem::DrawTitle()
 {
   M5.Lcd.setTextColor(fontColor);
+
+  if (36 < title.length()) {
+    M5.Lcd.setCursor( rect.x + 14, rect.y + 1);
+    M5.Lcd.print(title.substring(0,36));
+    M5.Lcd.setCursor( rect.x + 14, rect.y + rect.h / 2 + 1);
+    M5.Lcd.print(title.substring(36));
+  } else {
+    M5.Lcd.setCursor( rect.x + 14, rect.y + rect.h / 3);
+    M5.Lcd.print(title);
+  }
+}
+void MenuItem::DrawTitle(const String& str)
+{
+  M5.Lcd.setTextColor(fontColor);
   M5.Lcd.setCursor( rect.x + 14, rect.y + rect.h / 3);
-  M5.Lcd.print(title);
+  M5.Lcd.print(str);
 }
 void MenuItem::OnAfterDraw()
 {
-  if (subItems && subItems[0]) {
+  if (!subItems.empty()) {
     int x = rect.x + 5;
     int y = rect.y + rect.h / 2 - 3;
     if (subItems[0]->visible) {
@@ -152,8 +205,8 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
     OnAfterDraw();
   }
   MenuItem* res = this;
-  if (subItems) {
-    for (uint8_t i = 0; subItems[i]; ++i) {
+  if (!subItems.empty()) {
+    for (uint16_t i = 0; i != subItems.size(); ++i) {
       if (subItems[i]->visible) {
         res = subItems[i]->Draw(force, forceItem);
       }
@@ -192,8 +245,8 @@ void MenuItem::Hide() {
 }
 
 void MenuItem::OnEnter() {
-  if (subItems && subItems[0]) {
-    for (uint8_t i = 0; subItems[i]; ++i) {
+  if (!subItems.empty()) {
+    for (uint16_t i = 0; i != subItems.size(); ++i) {
       subItems[i]->rect = rect;
       if (!subItems[i]->visible) {
         subItems[i]->visible = true;
