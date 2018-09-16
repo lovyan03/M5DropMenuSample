@@ -2,7 +2,6 @@
 #include "VroomCtrlDemo.h"
 #include <M5Stack.h>
 
-//#include <BLEHIDDevice.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEScan.h>

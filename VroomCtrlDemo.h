@@ -4,9 +4,9 @@
 class VroomCtrlDemo
 {
 public:
-	VroomCtrlDemo();
-	bool setup();
-	void loop();
+  VroomCtrlDemo();
+  bool setup();
+  void loop();
   void close();
 };
 //*/

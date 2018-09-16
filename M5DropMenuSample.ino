@@ -9,7 +9,7 @@
 #include "Demo\DHT12Demo.h"
 #include "Demo\MPU9250Demo.h"
 #include "Demo\BLEDemo.h"
-#include "Demo\VroomCtrlDemo.h"
+#include "VroomCtrlDemo.h"
 
 typedef std::vector<MenuItem*> submenu;
 MenuContainer _menu;
