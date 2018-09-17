@@ -4,16 +4,17 @@
 #include <M5Stack.h>
 #include "utility/MPU9250.h"
 
-class MPU9250Demo
+#include "../MenuItem.h"
+
+class MPU9250Demo : public MenuCallBack
 {
 public:
   MPU9250Demo() {}
 
   bool setup()
   {
-    M5.Lcd.fillScreen(0);
-    M5.Lcd.setCursor(0,0);
-    M5.Lcd.setTextColor(0xffff);
+    btnDrawer.setTitle(2, "  Style");
+    M5.Lcd.setTextColor(0xffff, 0);
     if (0x71 != IMU.readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250)) {
       M5.Lcd.println("MPU9250 not connected...");
       delay(2);
@@ -30,9 +31,9 @@ public:
     return true;
   }
 
-  void loop()
+  bool loop()
   {
-    if (!(IMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)) return;
+    if (!(IMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)) return true;
 
     IMU.readAccelData(IMU.accelCount);
     IMU.getAres();
@@ -54,21 +55,22 @@ public:
 
     M5.Lcd.drawLine(_x, 0, _x, TFT_WIDTH, 0);
 
+  	M5.Lcd.setTextSize(1);
     M5.Lcd.setCursor( 10, 5);
-    M5.Lcd.setTextColor(0xffff);    M5.Lcd.print("accel (mg) ");
+    M5.Lcd.setTextColor(0xffff,0);    M5.Lcd.print("accel (mg) ");
 
     M5.Lcd.setTextColor(0xf800,0);    M5.Lcd.printf("  x:%+6d", (int)(1000 * IMU.ax));
     M5.Lcd.setTextColor(0x07e0,0);    M5.Lcd.printf("  y:%+6d", (int)(1000 * IMU.ay));
     M5.Lcd.setTextColor(0x001f,0);    M5.Lcd.printf("  z:%+6d", (int)(1000 * IMU.az));
 
     M5.Lcd.setCursor( 10, 80);
-    M5.Lcd.setTextColor(0xffff);    M5.Lcd.print("gyro (o/s) ");
+    M5.Lcd.setTextColor(0xffff,0);    M5.Lcd.print("gyro (o/s) ");
     M5.Lcd.setTextColor(0xf800,0);    M5.Lcd.printf("  x:%+6d", (int)(IMU.gx));
     M5.Lcd.setTextColor(0x07e0,0);    M5.Lcd.printf("  y:%+6d", (int)(IMU.gy));
     M5.Lcd.setTextColor(0x001f,0);    M5.Lcd.printf("  z:%+6d", (int)(IMU.gz));
 
     M5.Lcd.setCursor( 10,160);
-    M5.Lcd.setTextColor(0xffff);    M5.Lcd.print("  mag (mG) ");
+    M5.Lcd.setTextColor(0xffff,0);    M5.Lcd.print("  mag (mG) ");
     M5.Lcd.setTextColor(0xf800,0);    M5.Lcd.printf("  x:%+6d", (int)(IMU.mx/2));
     M5.Lcd.setTextColor(0x07e0,0);    M5.Lcd.printf("  y:%+6d", (int)(IMU.my/2));
     M5.Lcd.setTextColor(0x001f,0);    M5.Lcd.printf("  z:%+6d", (int)(IMU.mz/2));
@@ -79,6 +81,8 @@ public:
 
     _x = (++_x % TFT_HEIGHT);
     M5.Lcd.drawLine(_x+1, 0, _x+1, TFT_WIDTH, 0xffff);
+
+  	return true;
   }
 private:
   void plotpoint(uint16_t x, uint16_t y, int r, int g, int b)

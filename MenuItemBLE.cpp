@@ -30,10 +30,8 @@ void MenuItemBLE::ScanBLE()
 MenuItemBLE::~MenuItemBLE() {
   if (pClient && pClient->isConnected()) pClient->disconnect();
   pClient = 0;
-  //if (pAddr) delete pAddr;
-  //if (pRemoteServ) delete pRemoteServ;
-  //if (pRemoteChar) delete pRemoteChar;
 }
+
 
 /// Make SubItem from BLE Device Services
 void MenuItemBLE::ScanServices()
@@ -59,9 +57,11 @@ void MenuItemBLE::ScanServices()
     else servName = it->first;
     MenuItemBLE* mi = new MenuItemBLE(servName.c_str());
     mi->pRemoteServ = it->second;
+    mi->pAddr = pAddr;
     AddSubItem(mi);
   }
 }
+
 
 /// Make SubItem from BLE Services Characteristic
 void MenuItemBLE::ScanCharacteristic()
@@ -77,6 +77,8 @@ void MenuItemBLE::ScanCharacteristic()
     else servName = it->first;
     MenuItemBLE* mi = new MenuItemBLE(servName.c_str());
     mi->pRemoteChar = it->second;
+    mi->pRemoteServ = pRemoteServ;
+    mi->pAddr = pAddr;
     AddSubItem(mi);
   }
 }
@@ -114,9 +116,9 @@ void MenuItemBLE::BLEReadValue()
 
 
 void MenuItemBLE::OnEnter() {
-  if (pAddr) { ScanServices(); }
+  if      (pRemoteChar) { if (pRemoteChar->canRead()) BLEReadValue(); }
   else if (pRemoteServ) { ScanCharacteristic(); }
-  else if (pRemoteChar) { if (pRemoteChar->canRead()) BLEReadValue(); }
+  else if (pAddr) { ScanServices(); }
   else { ScanBLE(); }
 
   MenuItem::OnEnter();

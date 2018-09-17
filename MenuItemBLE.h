@@ -11,7 +11,7 @@ class BLERemoteCharacteristic;
 class BLERemoteDescriptor;
 class MenuItemBLE : public MenuItem {
 public:
-  MenuItemBLE(const String& titleStr, CALLBACK_MENUITEM cb = 0)
+  MenuItemBLE(const String& titleStr, std::function<void(MenuItem*)>cb = 0)
   : MenuItem(titleStr, cb), pAddr(0), pClient(0), pRemoteServ(0), pRemoteChar(0) {};
 
   virtual ~MenuItemBLE();

@@ -1,13 +1,15 @@
 #ifndef _VroomCtrlDemo_h_
 #define _VroomCtrlDemo_h_
 
-class VroomCtrlDemo
+#include "MenuItem.h"
+
+class VroomCtrlDemo : public MenuCallBack
 {
 public:
   VroomCtrlDemo();
   bool setup();
-  void loop();
+  bool loop();
   void close();
 };
-//*/
+
 #endif

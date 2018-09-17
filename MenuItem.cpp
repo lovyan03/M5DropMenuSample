@@ -21,7 +21,7 @@ bool operator!=(const Rect& lhs, const Rect& rhs) {
 
 MenuItem::MenuItem() {}
 
-MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb)
+MenuItem::MenuItem(const String& titleStr, int tg, std::function<void(MenuItem*)> cb)
 : title(titleStr)
 , callback(cb)
 , destRect(0,0,itemWidth, itemHeight)
@@ -29,7 +29,7 @@ MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb)
 , tag(tg)
 {
 }
-MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb)
+MenuItem::MenuItem(const String& titleStr, std::function<void(MenuItem*)> cb)
 : title(titleStr)
 , callback(cb)
 , destRect(0,0,itemWidth, itemHeight)
@@ -37,18 +37,8 @@ MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb)
 , tag(0)
 {
 }
-/*
-MenuItem::MenuItem(const String& titleStr, MenuItem* sub[])
-: title(titleStr)
-, destRect(0,0,itemWidth, itemHeight)
-, visible(false)
-, tag(0)
-{
-  SetSubItems(sub);
-}
-//*/
 
-MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub)
+MenuItem::MenuItem(const String& titleStr, int tg, std::function<void(MenuItem*)> cb, const std::vector<MenuItem*> &sub)
 : title(titleStr)
 , callback(cb)
 , destRect(0,0,itemWidth, itemHeight)
@@ -57,7 +47,7 @@ MenuItem::MenuItem(const String& titleStr, int tg, CALLBACK_MENUITEM cb, const s
 {
   SetSubItems(sub);
 }
-MenuItem::MenuItem(const String& titleStr, CALLBACK_MENUITEM cb, const std::vector<MenuItem*> &sub)
+MenuItem::MenuItem(const String& titleStr, std::function<void(MenuItem*)> cb, const std::vector<MenuItem*> &sub)
 : title(titleStr)
 , callback(cb)
 , destRect(0,0,itemWidth, itemHeight)
@@ -82,15 +72,16 @@ void MenuItem::AddSubItem(MenuItem* mi)
   mi->parentItem = this;
   subItems.push_back(mi);
 }
-/*
-void MenuItem::SetSubItems(MenuItem* sub[])
+
+void MenuItem::AddSubItems(const std::vector<MenuItem*> &sub)
 {
-  for (uint16_t i = 0; sub[i]; ++i) {
-    sub[i]->parentItem = this;
-    subItems.push_back(sub[i]);
+  subItems.reserve(subItems.size() + sub.size());
+  std::copy(sub.begin(), sub.end(),std::back_inserter(subItems));
+  for (std::vector<MenuItem*>::const_iterator it = sub.begin(); it != sub.end(); ++it) {
+    (*it)->parentItem = this;
   }
 }
-//*/
+
 void MenuItem::SetSubItems(const std::vector<MenuItem*> &sub)
 {
   subItems.assign(sub.begin(), sub.end());

@@ -3,7 +3,9 @@
 
 #include <M5Stack.h>
 
-class DHT12Demo
+#include "../MenuItem.h"
+
+class DHT12Demo : public MenuCallBack
 {
 public:
   DHT12Demo(uint8_t id=0)
@@ -13,10 +15,10 @@ public:
         : id;
   }
 
-  void setup()
+  bool setup()
   {
-    M5.Lcd.fillScreen(0);
-    M5.Lcd.setCursor(0,0);
+    M5.Lcd.setTextSize(1);
+    M5.Lcd.setTextColor(0xffff, 0);
     _x = 0;
     for (int i = 0 ; i < 10; ++i) {
       M5.Lcd.drawLine(0,210 - i * 20, 320, 210 - i * 20, 0x4208);
@@ -30,14 +32,15 @@ public:
     for (int i = 0 ; i < 16; ++i) {
       M5.Lcd.drawLine(i * 20, 20, i * 20, 220, 0x8410);
     }
+    return true;
   }
 
-  void loop()
+  bool loop()
   {
     switch (read()) {
-      case 1:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : endTransmission"); return;
-      case 2:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : available      "); return;
-      case 3:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : checksum       "); return;
+      case 1:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : endTransmission"); return true;
+      case 2:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : available      "); return true;
+      case 3:  M5.Lcd.setCursor(0,0); M5.Lcd.print("error : checksum       "); return true;
       default: M5.Lcd.setCursor(0,0); M5.Lcd.print("                       "); break;
     }
 
@@ -57,6 +60,7 @@ public:
     //Read humidity.
     M5.Lcd.print("   Humedad: ");
     M5.Lcd.printf("%4.1f", (float)humidity10 / 10);
+    return true;
   }
 
 private:

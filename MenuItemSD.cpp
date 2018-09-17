@@ -2,35 +2,26 @@
 #include "SD.h"
 
 void MenuItemSD::OnEnter() {
-  //M5.Lcd.setCursor( rect.x + rect.w / 3, rect.y + rect.h / 3);
-
   DisposeSubItems();
   SD.begin();
 
-  std::vector<MenuItemSD*> items;
+  std::vector<MenuItem*> filesItems;
   File root = SD.open(path.length() ? path : "/");
   File file = root.openNextFile();
-  uint16_t count;
   uint16_t dirCount = 0;
+  MenuItemSD* mi;
   while (file) {
     String ptmp = file.name();
-    items.push_back(new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length())));
-    if (file.isDirectory()) ++dirCount;
+    mi = new MenuItemSD(ptmp, file.isDirectory(), ptmp.substring(path.length()));
+    // ディレクトリは先に追加する
+    if (file.isDirectory()) AddSubItem(mi);
+    else filesItems.push_back(mi);
     file = root.openNextFile();
   }
   root.close();
-  if (!items.empty()) {
-    std::vector<MenuItem*> sub(items.size());
-    int iFile = dirCount - 1, iDir = -1;
-    for (int i = 0; i < count; ++i) {
-      if (items[i]->isDir) {
-        sub[++iDir] = items[i];
-      } else {
-        sub[++iFile] = items[i];
-      }
-    }
-    sub[count] = 0;
-    SetSubItems(sub);
+  if (!filesItems.empty()) {
+    // ファイルがあればまとめて追加する
+    AddSubItems(filesItems);
   }
   MenuItem::OnEnter();
 }
