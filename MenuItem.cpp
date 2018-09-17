@@ -12,6 +12,14 @@ uint16_t MenuItem::backgroundColor = 0x0000;
 MenuItem* MenuItem::selectedItem = 0;
 
 
+#ifndef min
+  #define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef max
+  #define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+
 bool operator==(const Rect& lhs, const Rect& rhs) {
   return lhs.equal(rhs);
 }
@@ -178,13 +186,13 @@ void MenuItem::OnAfterDraw()
 
 MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
 {
-  int x,y,w,h;
+  int16_t x,y,w,h;
 
   if (forceItem && (this == forceItem->parentItem || this->parentItem == forceItem->parentItem)) force = true;
   if ((moving || force) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
     // 枠を描画
-    y = max(0, rect.y);
-    h = rect.h + min(0, rect.y);
+    y = max(rect.y, (int16_t)0);
+    h = rect.h + min(rect.y, (int16_t)0);
     M5.Lcd.drawRect( rect.x, y, rect.w, h, frameColor);
     if (forceItem != this) {
       // 枠内を塗る
@@ -210,15 +218,15 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
         x = rect.Right();
         M5.Lcd.fillRect( x, y, res->rect.Right() - x, h, backgroundColor);
       }
-      y = max(0, subItems[0]->prevRect.y);
-      h = max(0, subItems[0]->rect.y - y);
+      y = max(subItems[0]->prevRect.y, (int16_t)0);
+      h = max(subItems[0]->rect.y - y, 0);
       if (h) {
         x = rect.Right();
         M5.Lcd.fillRect( x, y, subItems[0]->rect.Right() - x, h, backgroundColor);
       }
 
       if (moving || res->moving) {
-      y = max(0, rect.Bottom());
+      y = max(rect.Bottom(), (int16_t)0);
       M5.Lcd.fillRect( rect.x
                      , y
                      , subItems[0]->rect.x - rect.x

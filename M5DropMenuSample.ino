@@ -75,7 +75,7 @@ void setup() {
 
   _menu.begin();
   Wire.begin();
-  ButtonDrawer::getInstance()->setTitle("   Back","   Next","    Ok");
+  ButtonDrawer::getInstance()->setTitle("Back","Next","Ok");
 }
 
 
@@ -117,7 +117,7 @@ void FileView(File ff){
     size_t len = ff.size();
   uint8_t buf[256];
   if (ff.read(buf, len)) {
-    ButtonDrawer btnDrawer("   Back","","");
+    ButtonDrawer btnDrawer("Back","","");
     for(int i=0; i<len; ++i){
       M5.Lcd.write(buf[i]);
     }

@@ -8,13 +8,6 @@
 #include "Rect.h"
 #include "ButtonDrawer.h"
 
-#ifndef min
-  #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-  #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-
 class MenuItem;
 //void (* std::function<void(MenuItem*)>)(MenuItem *); 
 
@@ -23,7 +16,7 @@ struct MenuCallBack {
   ButtonDrawer btnDrawer;
   virtual void operator()(MenuItem*) {
     M5.Lcd.fillScreen(0);
-    btnDrawer.setTitle("   Back","","");
+    btnDrawer.setTitle("Back","","");
     if (setup()) {
       do {
         btnDrawer.draw();

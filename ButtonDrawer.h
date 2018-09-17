@@ -48,14 +48,15 @@ private:
     r.Inflate(-2);
     int h = (r.h - 8)/2;
     int w = title.length() * 6;
-    
+    int x = (r.w - w) / 2;
     color = colorFill[pressed];
-    M5.Lcd.fillRect(r.x+w, r.y, r.w-w, r.h, color);
+    M5.Lcd.fillRect(r.x    , r.y, x, r.h, color);
+    M5.Lcd.fillRect(r.x+x+w, r.y, r.w-w-x, r.h, color);
     if (h > 0) {
-      M5.Lcd.fillRect(r.x, r.y,       w, h, color);
-      M5.Lcd.fillRect(r.x, r.y+r.h-h, w, h, color);
+      M5.Lcd.fillRect(r.x+x, r.y,       w, h, color);
+      M5.Lcd.fillRect(r.x+x, r.y+r.h-h, w, h, color);
     }
-    M5.Lcd.setCursor(r.x, r.y + h);
+    M5.Lcd.setCursor(r.x+x, r.y + h);
     M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(colorFont[pressed], color);
     M5.Lcd.print(title);

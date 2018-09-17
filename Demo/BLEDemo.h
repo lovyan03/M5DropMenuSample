@@ -19,7 +19,7 @@ public:
     pRemoteServ = mi->pRemoteServ;
     pRemoteChar = mi->pRemoteChar;
 
-    btnDrawer.setTitle("   Back","","");
+    btnDrawer.setTitle("Back","","");
     if (setup()) {
       do {
         btnDrawer.draw();
