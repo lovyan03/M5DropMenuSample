@@ -51,7 +51,7 @@ public:
 delay(7);
     uint16_t xWay = way[((int)y + hArea - hHeader) % hArea];
     if ((uint16_t)x < xWay || (uint16_t)x > xWay+ww) {
-      M5.Lcd.setCursor(100,120);
+      M5.Lcd.setCursor(120,y);
       M5.Lcd.print(" !! Crash !! ");
       return true;
     }
@@ -93,9 +93,17 @@ delay(7);
   }
   void drawWay(int hy)
   {
-    M5.Lcd.drawLine( 0, hy,   319, hy, (((hy + micros()) % 32) << 5)|0x2404);
-    M5.Lcd.drawLine(wx-10, hy, wx+ww+10, hy, ((hy-hHeader)*20/hArea%2) ? 0xffff:0xf800);
-    M5.Lcd.drawLine(wx, hy, wx+ww, hy, colorWay);
+    int tmp;
+    for (int i = 0; i < wx;i+=tmp) {
+      tmp = 10+ (wx+micros()) % 20;
+      M5.Lcd.drawFastHLine( i, hy, tmp, (((i + hy + micros()) % 32) << 5)|0x2404);
+    }
+    for (int i = wx+ww; i < 320;i+=tmp) {
+      tmp = 10+ (wx+micros()) % 20;
+      M5.Lcd.drawFastHLine( i, hy, tmp, (((i + hy + micros()) % 32) << 5)|0x2404);
+    }
+    M5.Lcd.drawFastHLine(wx-10, hy, ww+20, ((hy-hHeader)*20/hArea%2) ? 0xffff:0xf800);
+    M5.Lcd.drawFastHLine(wx, hy, ww, colorWay);
   }
 
   void drawCar(float x, float y, uint16_t color)
