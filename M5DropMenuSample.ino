@@ -1,5 +1,4 @@
 
-#include <M5Stack.h>
 #include <vector>
 #include <SD.h>
 #include "ButtonDrawer.h"
@@ -10,8 +9,9 @@
 #include "Demo\DHT12Demo.h"
 #include "Demo\MPU9250Demo.h"
 #include "Demo\BLEDemo.h"
-#include "Demo\GraphicDemo.h"
+#include "Demo\ScrollDemo.h"
 #include "VroomCtrlDemo.h"
+#include <M5Stack.h>
 
 MenuContainer _menu;
 
@@ -56,10 +56,11 @@ void setup() {
                            } )
                          } )
                        } )
-                     , new MenuItem("Sensor Demo", submenu
+                     , new MenuItem("Demo", submenu
                        { new MenuItem("AD35 AD36 Input", ADInputDemo() )
                        , new MenuItem("DHT12"  , DHT12Demo() )
                        , new MenuItem("MPU9250", MPU9250Demo() )
+                       , new MenuItem("Scroll Demo", ScrollDemo())
                        , new MenuItem("BLE Vroom Controller", VroomCtrlDemo() )
                        } )
                      , new MenuItem("GPIO switch", CallBackGPIOtest, submenu
