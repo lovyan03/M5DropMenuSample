@@ -1,5 +1,7 @@
 
 #include "MenuItem.h"
+#undef min
+#include <algorithm>
 
 int8_t MenuItem::nestOffset = 10;
 int8_t MenuItem::itemHeight = 20;
@@ -10,14 +12,6 @@ uint16_t MenuItem::frameColor = 0x630C;
 uint16_t MenuItem::cursorColor = 0x421F;
 uint16_t MenuItem::backgroundColor = 0x0000;
 MenuItem* MenuItem::selectedItem = 0;
-
-
-#ifndef min
-  #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-  #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
 
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
@@ -191,8 +185,8 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
   if (forceItem && (this == forceItem->parentItem || this->parentItem == forceItem->parentItem)) force = true;
   if ((moving || force) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
     // 枠を描画
-    y = max(rect.y, (int16_t)0);
-    h = rect.h + min(rect.y, (int16_t)0);
+    y = std::max(rect.y, (int16_t)0);
+    h = rect.h + std::min(rect.y, (int16_t)0);
     M5.Lcd.drawRect( rect.x, y, rect.w, h, frameColor);
     if (forceItem != this) {
       // 枠内を塗る
@@ -212,21 +206,21 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
     }
     if (res != this) { // subItems drawed
       // right bottom area erase
-      h = max(0, res->prevRect.Bottom() - res->rect.Bottom());
+      h = std::max(0, res->prevRect.Bottom() - res->rect.Bottom());
       if (h) {
         y = res->rect.Bottom();
         x = rect.Right();
         M5.Lcd.fillRect( x, y, res->rect.Right() - x, h, backgroundColor);
       }
-      y = max(subItems[0]->prevRect.y, (int16_t)0);
-      h = max(subItems[0]->rect.y - y, 0);
+      y = std::max(subItems[0]->prevRect.y, (int16_t)0);
+      h = std::max(subItems[0]->rect.y - y, 0);
       if (h) {
         x = rect.Right();
         M5.Lcd.fillRect( x, y, subItems[0]->rect.Right() - x, h, backgroundColor);
       }
 
       if (moving || res->moving) {
-      y = max(rect.Bottom(), (int16_t)0);
+      y = std::max(rect.Bottom(), (int16_t)0);
       M5.Lcd.fillRect( rect.x
                      , y
                      , subItems[0]->rect.x - rect.x

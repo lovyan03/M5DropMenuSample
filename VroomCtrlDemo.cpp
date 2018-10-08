@@ -1,6 +1,8 @@
 
 #include "VroomCtrlDemo.h"
 #include <M5Stack.h>
+#undef min
+#include <algorithm>
 
 #include <BLEDevice.h>
 #include <BLEUtils.h>
@@ -154,8 +156,8 @@ bool VroomCtrlDemo::loop()
   M5.Lcd.fillRect(42,150,278,8,0);  M5.Lcd.fillRect(180+(gx<0?gx/ 16:0),150, abs(gx/ 16), 7, 0xf800);
   M5.Lcd.fillRect(42,160,278,8,0);  M5.Lcd.fillRect(180+(gy<0?gy/ 16:0),160, abs(gy/ 16), 7, 0x07e0);
   M5.Lcd.fillRect(42,170,278,8,0);  M5.Lcd.fillRect(180+(gz<0?gz/ 16:0),170, abs(gz/ 16), 7, 0x001f);
-  M5.Lcd.fillRect(42,190,278,8,0);  M5.Lcd.fillRect(52+min(sx,0x80),190, abs(sx - 0x80), 7, 0xf800);
-  M5.Lcd.fillRect(42,200,278,8,0);  M5.Lcd.fillRect(52+min(sy,0x80),200, abs(sy - 0x80), 7, 0x07e0);
+  M5.Lcd.fillRect(42,190,278,8,0);  M5.Lcd.fillRect(52+std::min(sx,(int16_t)0x80),190, abs(sx - 0x80), 7, 0xf800);
+  M5.Lcd.fillRect(42,200,278,8,0);  M5.Lcd.fillRect(52+std::min(sy,(int16_t)0x80),200, abs(sy - 0x80), 7, 0x07e0);
   for (int i = 0; i < 7; ++i) {
     M5.Lcd.fillRect(60+i*10, 210, 7,7, (btn & (1 << i)) ? 0xffff : 0x8410);
   }
