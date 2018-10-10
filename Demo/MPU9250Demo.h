@@ -3,23 +3,17 @@
 
 #include <M5Stack.h>
 #include "utility/MPU9250.h"
-
 #include "../MenuItem.h"
-
-#ifndef min
-  #define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-  #define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
+#undef min
+#include <algorithm>
 
 class MPU9250Demo : public MenuCallBack
 {
   MPU9250 IMU;
   uint16_t _x;
-  int style = 0;
+  int _style;
 public:
-  MPU9250Demo() {}
+  MPU9250Demo() : _x(0), _style(0) {}
 
   bool setup()
   {
@@ -66,11 +60,11 @@ public:
     IMU.mz = (float)IMU.magCount[2]*IMU.mRes;
   
     if (M5.BtnC.wasPressed()) {
-      style = ++style % 2;
+      _style = (1+_style) % 2;
       M5.Lcd.fillScreen(0);
       _x = 0;
     }
-    switch (style) {
+    switch (_style) {
       default: style0(); break;
       case 1:  style1(); break;
     }
@@ -105,7 +99,7 @@ private:
     plotpoint(_x,120, IMU.gx / 10, IMU.gy / 10, IMU.gz / 10);
     plotpoint(_x,200, IMU.mx /300, IMU.my /300, IMU.mz /300);
 
-    _x = (++_x % TFT_HEIGHT);
+    _x = (1+_x) % TFT_HEIGHT;
     M5.Lcd.drawLine(_x+1, 0, _x+1, TFT_WIDTH, 0xffff);
 
     return true;
@@ -161,7 +155,7 @@ private:
     return true;
   }
   void drawBar(int value, uint16_t y, uint16_t color) {
-    value = max(-160, min(160, value));
+    value = std::max(-160, std::min(160, value));
     int x = 160 + (value < 0 ? value : 0);
     int w = abs(value);
     M5.Lcd.fillRect(0  , y, x, 7, 0);

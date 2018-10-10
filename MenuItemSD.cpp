@@ -8,7 +8,6 @@ void MenuItemSD::OnEnter() {
   std::vector<MenuItem*> filesItems;
   File root = SD.open(path.length() ? path : "/");
   File file = root.openNextFile();
-  uint16_t dirCount = 0;
   MenuItemSD* mi;
   while (file) {
     String ptmp = file.name();

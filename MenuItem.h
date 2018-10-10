@@ -29,15 +29,11 @@ struct MenuCallBack {
   virtual bool setup() { return true; };
   virtual bool loop()  { return false; };
   virtual void close() {};
+  virtual ~MenuCallBack() {};
 };
 
 class MenuItem {
 public:
-  String title;
-  std::function<void(MenuItem*)> callback = 0;
-  Rect destRect;    // destinationPoint
-  bool visible;
-
   static int8_t nestOffset;     // nest x offset
   static int8_t itemHeight;
   static int16_t itemWidth;
@@ -72,6 +68,10 @@ public:
   virtual void OnExit() { }
   virtual void OnAfterDraw();
 
+  String title;
+  std::function<void(MenuItem*)> callback = 0;
+  Rect destRect;    // destinationPoint
+  bool visible;
   int tag = 0;
 
   MenuItem* parentItem = 0;

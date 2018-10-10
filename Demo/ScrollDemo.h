@@ -108,9 +108,10 @@ delay(7);
 
   void drawCar(float x, float y, uint16_t color)
   {
-    M5.Lcd.drawLine( x, y, x + sx*8     , y + cy*8     , color);
-    M5.Lcd.drawLine( x, y, x + sx*8 + cy, y + cy*8 - sx, color);
-    M5.Lcd.drawLine( x, y, x + sx*8 - cy, y + cy*8 + sx, color);
+    M5.Lcd.drawLine( x, y, x + sx*8 + cy*2, y + cy*8 - sx*2, color);
+    M5.Lcd.drawLine( x, y, x + sx*8 - cy*2, y + cy*8 + sx*2, color);
+    M5.Lcd.drawLine( x + sx*8 + cy*2, y + cy*8 - sx*2
+                   , x + sx*8 - cy*2, y + cy*8 + sx*2, color);
 /*
     if (y < hHeader)
     M5.Lcd.drawLine( x + sx, y + cy + hArea

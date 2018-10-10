@@ -21,7 +21,16 @@ bool operator!=(const Rect& lhs, const Rect& rhs) {
   return !(lhs == rhs);
 }
 
-MenuItem::MenuItem() {}
+MenuItem::MenuItem()
+: title("")
+, callback(0)
+, destRect(0,0,itemWidth, itemHeight)
+, visible(false)
+, tag(0)
+, parentItem(0)
+, moving(false)
+{
+}
 
 MenuItem::MenuItem(const String& titleStr, int tg, std::function<void(MenuItem*)> cb)
 : title(titleStr)
@@ -184,11 +193,11 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem, const Rect* forc
 
   bool collision = (forceRect && rect.isCollision(*forceRect));
   if ((moving || force || collision) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
-    // 枠を描画
+    // draw frame line
     y = std::max(rect.y, (int16_t)0);
     h = rect.h + std::min(rect.y, (int16_t)0);
     M5.Lcd.drawRect( rect.x, y, rect.w, h, frameColor);
-    // 枠内を塗る
+    // fill item body
     M5.Lcd.fillRect( rect.x+1, y+1, rect.w-2, h-2, this == forceItem ? cursorColor : fillColor);
     if (rect.Bottom() > 0) {
       DrawTitle();
@@ -203,10 +212,9 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem, const Rect* forc
       }
     }
     if (res != this) { // subItems drawed
-      // right bottom area erase
       h = std::max(0, res->prevRect.Bottom() - res->rect.Bottom());
       if (h)
-      { // 下側の過去画像消去
+      { // bottom side erase
         y = res->rect.Bottom();
         x = rect.Right();
         M5.Lcd.fillRect( x, y, res->rect.Right() - x, h, backgroundColor);
@@ -214,13 +222,13 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem, const Rect* forc
       y = std::max(subItems[0]->prevRect.y, (int16_t)0);
       h = std::max(subItems[0]->rect.y - y, 0);
       if (h)
-      { // 右側面サブアイテム間の過去画像消去
+      { // right side erase
         x = rect.Right();
         M5.Lcd.fillRect( x, y, subItems[0]->rect.Right() - x, h, backgroundColor);
       }
 
       if (moving || res->moving)
-      { // 左側の過去画像消去
+      { // left side erase
       y = std::max(rect.Bottom(), (int16_t)0);
       M5.Lcd.fillRect( rect.x
                      , y
