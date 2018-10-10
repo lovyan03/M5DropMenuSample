@@ -59,7 +59,7 @@ public:
   bool Move();
   void DrawTitle(const String& str);
   void DrawTitle();
-  MenuItem* Draw(bool force, const MenuItem* forceItem = 0);
+  MenuItem* Draw(bool force, const MenuItem* forceItem = 0, const Rect* forceRect = 0);
   void Hide();
 
   virtual void OnEnter();

@@ -37,7 +37,7 @@ public:
   void loop(bool force = false) {
     if (M5.BtnA.wasPressed())
     { // 親階層を選択
-      force = true;
+      _moving = true;
       if (selectedItem->parentItem != this) {
         selectedItem = selectedItem->parentItem;
         for (uint16_t i = 0; i != selectedItem->subItems.size(); ++i) {
@@ -49,7 +49,7 @@ public:
     }
     if (M5.BtnB.wasPressed())
     { // メニューカーソル位置を順に変更
-      force = true;
+      _moving = true;
       MenuItem *parent = selectedItem->parentItem;
       for (uint16_t i = 0; i != parent->subItems.size(); ++i) {
         if (parent->subItems[i] != selectedItem) continue;
@@ -63,10 +63,12 @@ public:
     if (M5.BtnC.wasPressed()) 
     { // メニューアイテムを選択
       selectedItem->OnEnter();
-      if (!selectedItem->subItems.empty()) {
+      if (!selectedItem->subItems.empty())
+      { // サブアイテムを展開
         MenuItem* mi = selectedItem;
         selectedItem = selectedItem->subItems[0];
-        force = true;
+        _moving = true;
+        // force = true;
         UpdateDestRect();
 
         ScrollSubitemArea(mi);
@@ -81,14 +83,12 @@ public:
         }
       }
     }
-    if (force) {
+    if (_moving || force) {
       if (selectedItem->destRect.y < itemHeight/2) {
         DestRectYScroll(-selectedItem->destRect.y + itemHeight );
       }
-    } 
-    if (_moving || force) {
+
       _moving = Move();
-      MenuItem* mi = 0;
       if (!_cursorRect.equal(selectedItem->destRect)) { // カーソル移動
         const Rect& c = _cursorRect;
         Rect r = c.mixRect(selectedItem->destRect);
@@ -96,16 +96,19 @@ public:
         if (c.y+c.h > r.y+r.h) M5.Lcd.fillRect( c.x , r.y+r.h, c.w, (c.y+c.h)-(r.y+r.h), backgroundColor);
         if (c.x     < r.x    ) M5.Lcd.fillRect( c.x , c.y    , r.x-c.x            ,c.h , backgroundColor);
         if (c.x+c.w > r.x+r.w) M5.Lcd.fillRect( r.x+r.w, c.y , (c.x+c.w)-(r.x+r.w),c.h , backgroundColor);
+        Draw(force, selectedItem, &_cursorRect);
         _cursorRect = r;
         _moving = true;
-        mi = selectedItem;
+        M5.Lcd.fillRect( _cursorRect.x+1, _cursorRect.y+1, _cursorRect.w-2, _cursorRect.h-2, cursorColor);
+        if (destRect.h > 0) {
+          selectedItem->DrawTitle();
+          selectedItem->OnAfterDraw();
+        }
+      } else {
+        Draw(force, selectedItem);
       }
-
-      mi = Draw(force, mi);
-      M5.Lcd.fillRect( selectedItem->rect.x+1, selectedItem->rect.y+1, selectedItem->rect.w-2, selectedItem->rect.h-2, cursorColor);
-      M5.Lcd.fillRect( _cursorRect.x+1, _cursorRect.y+1, _cursorRect.w-2, _cursorRect.h-2, cursorColor);
-      selectedItem->DrawTitle();
-      selectedItem->OnAfterDraw();
+    } else {
+      delay(16);
     }
   }
 };

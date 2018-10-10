@@ -178,22 +178,20 @@ void MenuItem::OnAfterDraw()
   }
 }
 
-MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
+MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem, const Rect* forceRect)
 {
   int16_t x,y,w,h;
 
-  if (forceItem && (this == forceItem->parentItem || this->parentItem == forceItem->parentItem)) force = true;
-  if ((moving || force) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
+  bool collision = (forceRect && rect.isCollision(*forceRect));
+  if ((moving || force || collision) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
     // 枠を描画
     y = std::max(rect.y, (int16_t)0);
     h = rect.h + std::min(rect.y, (int16_t)0);
     M5.Lcd.drawRect( rect.x, y, rect.w, h, frameColor);
-    if (forceItem != this) {
-      // 枠内を塗る
-      M5.Lcd.fillRect( rect.x+1, y+1, rect.w-2, h-2, fillColor);
-      if (rect.Bottom() > 0) {
-        DrawTitle();
-      }
+    // 枠内を塗る
+    M5.Lcd.fillRect( rect.x+1, y+1, rect.w-2, h-2, this == forceItem ? cursorColor : fillColor);
+    if (rect.Bottom() > 0) {
+      DrawTitle();
     }
     OnAfterDraw();
   }
@@ -201,25 +199,28 @@ MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem)
   if (!subItems.empty()) {
     for (uint16_t i = 0; i != subItems.size(); ++i) {
       if (subItems[i]->visible) {
-        res = subItems[i]->Draw(force, forceItem);
+        res = subItems[i]->Draw(force, forceItem, forceRect);
       }
     }
     if (res != this) { // subItems drawed
       // right bottom area erase
       h = std::max(0, res->prevRect.Bottom() - res->rect.Bottom());
-      if (h) {
+      if (h)
+      { // 下側の過去画像消去
         y = res->rect.Bottom();
         x = rect.Right();
         M5.Lcd.fillRect( x, y, res->rect.Right() - x, h, backgroundColor);
       }
       y = std::max(subItems[0]->prevRect.y, (int16_t)0);
       h = std::max(subItems[0]->rect.y - y, 0);
-      if (h) {
+      if (h)
+      { // 右側面サブアイテム間の過去画像消去
         x = rect.Right();
         M5.Lcd.fillRect( x, y, subItems[0]->rect.Right() - x, h, backgroundColor);
       }
 
-      if (moving || res->moving) {
+      if (moving || res->moving)
+      { // 左側の過去画像消去
       y = std::max(rect.Bottom(), (int16_t)0);
       M5.Lcd.fillRect( rect.x
                      , y
@@ -243,8 +244,9 @@ void MenuItem::OnEnter() {
       subItems[i]->rect = rect;
       if (!subItems[i]->visible) {
         subItems[i]->visible = true;
-        subItems[i]->rect.h = 0;
       }
+      subItems[i]->destRect.h = itemHeight;
+      subItems[i]->rect.h = 0;
     }
   } else {
     int i = 0;
