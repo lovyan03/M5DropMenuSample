@@ -32,6 +32,10 @@ struct MenuCallBack {
 };
 
 class MenuItem {
+  String title;
+  std::function<void(MenuItem*)> callback = 0;
+  Rect destRect;    // destinationPoint
+  bool visible;
 public:
   static int8_t nestOffset;     // nest x offset
   static int8_t itemHeight;
@@ -48,6 +52,7 @@ public:
   MenuItem(const String& title, std::function<void(MenuItem*)> cb, const std::vector<MenuItem*> &sub);
   MenuItem(const String& title, int tg = 0, std::function<void(MenuItem*)> cb = 0);
   MenuItem(const String& title, int tg    , std::function<void(MenuItem*)> cb, const std::vector<MenuItem*> &sub);
+  virtual ~MenuItem() {};
   uint16_t SubCount() const;
   void AddSubItem(MenuItem* item);
   void AddSubItems(const std::vector<MenuItem*> &sub);
@@ -66,15 +71,11 @@ public:
   virtual void OnExit() { }
   virtual void OnAfterDraw();
 
-  std::function<void(MenuItem*)> callback = 0;
   int tag = 0;
-  String title;
 
   MenuItem* parentItem = 0;
   std::vector<MenuItem*> subItems;
   Rect rect;        // displayPoint
-  Rect destRect;    // destinationPoint
-  bool visible;
 protected:
   bool moving;
   Rect prevRect;    // previousDisplayPoint

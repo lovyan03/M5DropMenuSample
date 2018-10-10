@@ -180,7 +180,7 @@ void MenuItem::OnAfterDraw()
 
 MenuItem* MenuItem::Draw(bool force, const MenuItem* forceItem, const Rect* forceRect)
 {
-  int16_t x,y,w,h;
+  int16_t x,y,h;
 
   bool collision = (forceRect && rect.isCollision(*forceRect));
   if ((moving || force || collision) && rect.w && rect.h && rect.y > -itemHeight/2 && rect.y < TFT_WIDTH) {
