@@ -15,6 +15,9 @@
 
 class MPU9250Demo : public MenuCallBack
 {
+  MPU9250 IMU;
+  uint16_t _x;
+  int style = 0;
 public:
   MPU9250Demo() {}
 
@@ -74,9 +77,6 @@ public:
     return true;
   }
 private:
-  MPU9250 IMU;
-  uint16_t _x;
-  int style = 0;
   bool style0()
   {
     M5.Lcd.drawLine(_x, 0, _x, TFT_WIDTH, 0);
