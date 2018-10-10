@@ -32,11 +32,12 @@ struct MenuCallBack {
 };
 
 class MenuItem {
+public:
   String title;
   std::function<void(MenuItem*)> callback = 0;
   Rect destRect;    // destinationPoint
   bool visible;
-public:
+
   static int8_t nestOffset;     // nest x offset
   static int8_t itemHeight;
   static int16_t itemWidth;
