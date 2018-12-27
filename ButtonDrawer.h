@@ -57,6 +57,7 @@ private:
       M5.Lcd.fillRect(r.x+x, r.y+r.h-h, w, h, color);
     }
     M5.Lcd.setCursor(r.x+x, r.y + h);
+    M5.Lcd.setTextFont(0);
     M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(colorFont[pressed], color);
     M5.Lcd.print(title);

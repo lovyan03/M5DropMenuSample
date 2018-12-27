@@ -12,6 +12,9 @@
 #include "Demo\BLEDemo.h"
 #include "Demo\ScrollDemo.h"
 #include "VroomCtrlDemo.h"
+#include "GroveJoystick.h"
+#include "FACESGameBoy.h"
+#include "PLUSEncoder.h"
 #include <M5Stack.h>
 
 MenuContainer _menu;
@@ -84,7 +87,36 @@ void setup() {
 
 void loop() {
   M5.update();
-  delay(1);
+
+  if (M5.BtnA.wasPressed()) { _menu.moveUp();     }
+  if (M5.BtnB.wasPressed()) { _menu.moveNext();   }
+  if (M5.BtnC.wasPressed()) { _menu.selectItem(); }
+
+#ifdef _GroveJoystick_h_
+  JoyStick.update();
+  if (JoyStick.wasLeft())    _menu.moveUp();
+  if (JoyStick.wasDown())    _menu.moveNext();
+  if (JoyStick.wasUp())      _menu.movePrev();
+  if (JoyStick.wasRight()
+   || JoyStick.wasPressed()) _menu.selectItem();
+#endif
+#ifdef _FACESGameBoy_h_
+  FacesGameBoy.update();
+  if (FacesGameBoy.wasLeft()
+   || FacesGameBoy.wasPressedB()) _menu.moveUp();
+  if (FacesGameBoy.wasDown())     _menu.moveNext();
+  if (FacesGameBoy.wasUp())       _menu.movePrev();
+  if (FacesGameBoy.wasRight()
+   || FacesGameBoy.wasPressedA()) _menu.selectItem();
+#endif
+#ifdef _PLUSEncoder_h_
+  PlusEncoder.update();
+  if (PlusEncoder.isLongClick()) _menu.moveUp();
+  if (PlusEncoder.wasDown())     _menu.moveNext();
+  if (PlusEncoder.wasUp())       _menu.movePrev();
+  if (PlusEncoder.isClick())     _menu.selectItem();
+#endif
+
   ButtonDrawer::getInstance()->draw();
   _menu.loop();
 }
