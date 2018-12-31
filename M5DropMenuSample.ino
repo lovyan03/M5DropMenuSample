@@ -1,6 +1,10 @@
-
 #include <vector>
 #include <SD.h>
+#include <M5Stack.h>
+#include "GroveJoystick.h"
+#include "FACESGameBoy.h"
+#include "PLUSEncoder.h"
+
 #include "ButtonDrawer.h"
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
@@ -13,10 +17,6 @@
 #include "Demo\BLEDemo.h"
 #include "Demo\ScrollDemo.h"
 #include "VroomCtrlDemo.h"
-#include "GroveJoystick.h"
-#include "FACESGameBoy.h"
-#include "PLUSEncoder.h"
-#include <M5Stack.h>
 
 MenuContainer _menu;
 
