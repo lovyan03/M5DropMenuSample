@@ -22,7 +22,7 @@ public:
     isRunningFFT = true;
     startMsec = millis();
     frameMain = 0;
-    xTaskCreatePinnedToCore(taskFftLoop, "taskfft", 4096, this, 1, &xHandleFft, 0);
+    xTaskCreatePinnedToCore(taskFftLoop, "taskfft", 4096, this, 1, NULL, 0);
     return true;
   }
   void close() {
@@ -31,6 +31,7 @@ public:
   bool loop()
   {
     ++frameMain;
+    while (frameMain != frameFFT) delayMicroseconds(1);
     int x, y, py;
     for (int n = 1; n < FFT_LEN / 2; ++n)
     {
@@ -44,11 +45,8 @@ public:
     uint32_t m = millis() - startMsec;
     if (m != 0) {
       M5.Lcd.setCursor(0,0);
-      M5.Lcd.printf("MainTask%3dFPS / FFT Task%3dFPS"
-                   , (int)((double)frameMain * 1000 / m)
-                   , (int)((double)frameFFT  * 1000 / m));
+      M5.Lcd.printf("FPS %3d", (int)((double)frameMain * 1000 / m));
     }
-    while (frameMain > frameFFT) delayMicroseconds(1);
     return true;
   }
 private:
@@ -56,7 +54,6 @@ private:
   volatile unsigned char fftdata[FFT_LEN / 2];
   volatile bool isRunningFFT;
   volatile uint32_t frameFFT = 0;
-  TaskHandle_t xHandleFft = NULL;
   uint32_t startMsec;
   uint32_t frameMain;
 
@@ -68,10 +65,19 @@ private:
     int x, y, n;
     arduinoFFT FFT = arduinoFFT();
     double adBuf[FFT_LEN];
+    double vImag[FFT_LEN] = {0};
     while (Me->isRunningFFT) {
+      FFT.Windowing(adBuf, FFT_LEN, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+      FFT.Compute(adBuf, vImag, FFT_LEN, FFT_FORWARD);
+      FFT.ComplexToMagnitude(adBuf, vImag, FFT_LEN);
+      for (n = 0; n < FFT_LEN / 2; n++) {
+        Me->fftdata[n] = map(min(256, adBuf[n]/32), 0, 256, 0, 204);
+      }
+      delay(1);
       ++Me->frameFFT;
-      double vImag[FFT_LEN] = {0};
+      while (Me->isRunningFFT && Me->frameMain != Me->frameFFT) delayMicroseconds(1);
       for (n = 0; n < FFT_LEN; n++) {
+        vImag[n] = 0;
         double v = analogRead(ADC_MIC_PIN);
         AdcMeanValue += (v - AdcMeanValue) * 0.001;
         adBuf[n] = v - AdcMeanValue;
@@ -79,15 +85,8 @@ private:
         while (micros() < nextTime);
         nextTime = micros() + SAMPLING_TIME_US;
       }
-      FFT.Windowing(adBuf, FFT_LEN, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-      FFT.Compute(adBuf, vImag, FFT_LEN, FFT_FORWARD);
-      FFT.ComplexToMagnitude(adBuf, vImag, FFT_LEN);
-      for (n = 0; n < FFT_LEN / 2; n++) {
-        Me->fftdata[n] = map(min(256, adBuf[n]/32), 0, 256, 0, 204);
-      }
-      while (Me->isRunningFFT && Me->frameMain < Me->frameFFT) delayMicroseconds(1);
     }
-    vTaskDelete(Me->xHandleFft);
+    vTaskDelete(xTaskGetCurrentTaskHandle());
   }
 };
 #endif
