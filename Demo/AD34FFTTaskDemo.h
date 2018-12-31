@@ -14,6 +14,26 @@ class AD34FFTTaskDemo : public MenuCallBack
 {
 public:
   AD34FFTTaskDemo() {}
+  virtual void operator()(MenuItem*) {
+    M5.Lcd.fillScreen(0);
+    btnDrawer.setTitle("Back","Decay -","Decay +");
+    if (setup()) {
+      do {
+        btnDrawer.draw();
+        M5.update();
+        if (M5.BtnB.wasPressed() &&  1 < decay) --decay;
+        if (M5.BtnC.wasPressed() && 20 > decay) ++decay;
+#ifdef _PLUSEncoder_h_
+        PlusEncoder.update();
+        if (PlusEncoder.isLongClick()) break;
+        if (PlusEncoder.wasUp()   &&  1 < decay) --decay;
+        if (PlusEncoder.wasDown() && 20 > decay) ++decay;
+#endif
+      } while (loop() && !M5.BtnA.isPressed());
+      close();
+      M5.Lcd.fillScreen(0);
+    }
+  }
   bool setup()
   {
     pinMode(ADC_MIC_PIN, INPUT);
@@ -38,18 +58,22 @@ public:
       x = n * 5 - 3;
       y = fftdata[n];
       py = prevdata[n];
-      if (py > y) M5.Lcd.fillRect(x, 220-py, 4, py-y, 0);
+      if (py > y) { 
+        y = (y + py * (decay - 1)) / decay; // Slow decay
+        M5.Lcd.fillRect(x, 220-py, 4, py-y, 0);
+      }
       M5.Lcd.fillRect(x, 220-y, 4, y+1, 0x001f-(y>>3) + ((y>>2)<<5) + ((y>>3)<<11));
       prevdata[n] = y;
     }
     uint32_t m = millis() - startMsec;
     if (m != 0) {
       M5.Lcd.setCursor(0,0);
-      M5.Lcd.printf("FPS %3d", (int)((double)frameMain * 1000 / m));
+      M5.Lcd.printf("FPS%3d    decay %2d", (int)((double)frameMain * 1000 / m), decay);
     }
     return true;
   }
 private:
+  unsigned int decay = 5;
   unsigned char prevdata[FFT_LEN / 2];
   volatile unsigned char fftdata[FFT_LEN / 2];
   volatile bool isRunningFFT;
