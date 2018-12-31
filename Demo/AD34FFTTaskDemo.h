@@ -30,6 +30,7 @@ public:
   }
   bool loop()
   {
+    ++frameMain;
     int x, y, py;
     for (int n = 1; n < FFT_LEN / 2; ++n)
     {
@@ -40,7 +41,6 @@ public:
       M5.Lcd.fillRect(x, 220-y, 4, y+1, 0x001f-(y>>3) + ((y>>2)<<5) + ((y>>3)<<11));
       prevdata[n] = y;
     }
-    ++frameMain;
     uint32_t m = millis() - startMsec;
     if (m != 0) {
       M5.Lcd.setCursor(0,0);
@@ -48,6 +48,7 @@ public:
                    , (int)((double)frameMain * 1000 / m)
                    , (int)((double)frameFFT  * 1000 / m));
     }
+    while (frameMain > frameFFT) delayMicroseconds(1);
     return true;
   }
 private:
@@ -68,6 +69,7 @@ private:
     arduinoFFT FFT = arduinoFFT();
     double adBuf[FFT_LEN];
     while (Me->isRunningFFT) {
+      ++Me->frameFFT;
       double vImag[FFT_LEN] = {0};
       for (n = 0; n < FFT_LEN; n++) {
         double v = analogRead(ADC_MIC_PIN);
@@ -77,15 +79,13 @@ private:
         while (micros() < nextTime);
         nextTime = micros() + SAMPLING_TIME_US;
       }
-      delay(1);
       FFT.Windowing(adBuf, FFT_LEN, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
       FFT.Compute(adBuf, vImag, FFT_LEN, FFT_FORWARD);
       FFT.ComplexToMagnitude(adBuf, vImag, FFT_LEN);
-      delay(1);
       for (n = 0; n < FFT_LEN / 2; n++) {
         Me->fftdata[n] = map(min(256, adBuf[n]/32), 0, 256, 0, 204);
       }
-      ++Me->frameFFT;
+      while (Me->isRunningFFT && Me->frameMain < Me->frameFFT) delayMicroseconds(1);
     }
     vTaskDelete(Me->xHandleFft);
   }
