@@ -6,6 +6,7 @@
 #include "MenuItemSD.h"
 #include "MenuItemBLE.h"
 #include "Demo\I2CScanner.h"
+#include "Demo\AD34FFTTaskDemo.h"
 #include "Demo\ADInputDemo.h"
 #include "Demo\DHT12Demo.h"
 #include "Demo\MPU9250Demo.h"
@@ -62,6 +63,7 @@ void setup() {
                        } )
                      , new MenuItem("Demo", submenu
                        { new MenuItem("I2C Scanner", I2CScanner() )
+                       , new MenuItem("FIRE/GO AD34Mic FFT MultiTask", AD34FFTTaskDemo() )
                        , new MenuItem("AD35 AD36 Input", ADInputDemo() )
                        , new MenuItem("DHT12"  , DHT12Demo() )
                        , new MenuItem("MPU9250", MPU9250Demo() )
