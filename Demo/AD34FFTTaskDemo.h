@@ -7,7 +7,7 @@
 
 #define ADC_MIC_PIN 34
 #define FFT_LEN 128
-#define SAMPLINGFREQUENCY 40000
+#define SAMPLINGFREQUENCY 44100
 #define SAMPLING_TIME_US (1000000UL/SAMPLINGFREQUENCY)
 
 class AD34FFTTaskDemo : public MenuCallBack
@@ -40,9 +40,10 @@ public:
     pinMode(25, OUTPUT);
     dacWrite(25, 0);
     isRunningFFT = true;
-    startMsec = millis();
     frameMain = 0;
+    frameFFT = 0;
     xTaskCreatePinnedToCore(taskFftLoop, "taskfft", 4096, this, 1, NULL, 0);
+    startMsec = millis();
     return true;
   }
   void close() {
@@ -50,20 +51,42 @@ public:
   }
   bool loop()
   {
-    ++frameMain;
-    while (frameMain != frameFFT) delayMicroseconds(1);
     int x, y, py;
-    for (int n = 1; n < FFT_LEN / 2; ++n)
-    {
-      x = n * 5 - 3;
-      y = fftdata[n];
-      py = prevdata[n];
-      if (py > y) { 
-        y = (y + py * (decay - 1)) / decay; // Slow decay
-        M5.Lcd.fillRect(x, 220-py, 4, py-y, 0);
+    ++frameMain;
+    while (frameMain != frameFFT); // frame sync wait
+    for (int i = 1; i < FFT_LEN / 2; ++i) {
+      if (peakFft[i] < fftdata[i])  peakFft[i] = fftdata[i];
+    }
+    if (0 == (frameMain % 2)) {
+      for (int i = 1; i < FFT_LEN / 2; ++i)
+      {
+        x = 128 + i * 3 - 1;
+        y = peakFft[i];
+        py = pyFft[i];
+        if (py > y) { 
+          y = (y + py * (decay - 1)) / decay; // Slow decay
+          M5.Lcd.fillRect(x, 222-py, 2, py-y, 0);
+        }
+        M5.Lcd.fillRect(x, 222-y, 2, y+1, 0x001f-(y>>3) + ((y>>2)<<5) + ((y>>3)<<11));
+        pyFft[i] = y;
+        peakFft[i] = 0;
       }
-      M5.Lcd.fillRect(x, 220-y, 4, y+1, 0x001f-(y>>3) + ((y>>2)<<5) + ((y>>3)<<11));
-      prevdata[n] = y;
+    } else if (1 == (frameMain % 2)) {
+      for (int i = 0; i < FFT_LEN; ++i) {
+        if (i != FFT_LEN - 1) { 
+          if (pyWav[i+1] < pyWav[i])      M5.Lcd.drawFastVLine(i+1, pyWav[i+1], pyWav[i] - pyWav[i+1]+1,0);
+          else if (pyWav[i+1] > pyWav[i]) M5.Lcd.drawFastVLine(i+1, pyWav[i], pyWav[i+1] - pyWav[i]+1,0);
+          else                            M5.Lcd.drawPixel(i+1, pyWav[i], 0);
+        }
+        y = 8 + rawdata[i] / 19;
+        if (i != 0) { 
+          if (py < y)      M5.Lcd.drawFastVLine(i, py, y - py+1, 0xffff);
+          else if (py > y) M5.Lcd.drawFastVLine(i, y, py - y +1, 0xffff);
+          else             M5.Lcd.drawPixel(i, y, 0xffff);
+        }
+        py = y;
+        pyWav[i] = y;
+      }
     }
     uint32_t m = millis() - startMsec;
     if (m != 0) {
@@ -74,8 +97,11 @@ public:
   }
 private:
   unsigned int decay = 5;
-  unsigned char prevdata[FFT_LEN / 2];
-  volatile unsigned char fftdata[FFT_LEN / 2];
+  uint8_t pyWav[FFT_LEN];
+  uint8_t pyFft[FFT_LEN / 2];
+  uint8_t peakFft[FFT_LEN / 2];
+  volatile uint8_t fftdata[FFT_LEN / 2];
+  volatile uint16_t rawdata[FFT_LEN] = {0};
   volatile bool isRunningFFT;
   volatile uint32_t frameFFT = 0;
   uint32_t startMsec;
@@ -95,17 +121,17 @@ private:
       FFT.Compute(adBuf, vImag, FFT_LEN, FFT_FORWARD);
       FFT.ComplexToMagnitude(adBuf, vImag, FFT_LEN);
       for (n = 0; n < FFT_LEN / 2; n++) {
-        Me->fftdata[n] = map(min(256, adBuf[n]/32), 0, 256, 0, 204);
+        Me->fftdata[n] = map(min(256, adBuf[n]/32), 0, 256, 0, 212);
       }
       delay(1);
       ++Me->frameFFT;
-      while (Me->isRunningFFT && Me->frameMain != Me->frameFFT) delayMicroseconds(1);
+      while (Me->isRunningFFT && Me->frameMain != Me->frameFFT); // frame sync wait
       for (n = 0; n < FFT_LEN; n++) {
         vImag[n] = 0;
         double v = analogRead(ADC_MIC_PIN);
+        Me->rawdata[n] = v;
         AdcMeanValue += (v - AdcMeanValue) * 0.001;
         adBuf[n] = v - AdcMeanValue;
-        delayMicroseconds(1);
         while (micros() < nextTime);
         nextTime = micros() + SAMPLING_TIME_US;
       }
