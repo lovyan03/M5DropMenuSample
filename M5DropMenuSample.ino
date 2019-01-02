@@ -9,6 +9,7 @@
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
 #include "MenuItemBLE.h"
+#include "MenuItem\MenuItemNumeric.h"
 #include "Demo\I2CScanner.h"
 #include "Demo\AD34FFTTaskDemo.h"
 #include "Demo\ADInputDemo.h"
@@ -70,11 +71,14 @@ void setup() {
                        , new MenuItem("Scroll Demo", ScrollDemo())
                        , new MenuItem("BLE Vroom Controller", VroomCtrlDemo() )
                        } )
+                     , new MenuItemNumeric("Brightness",1,15,5,CallBackBrightness)
                      , new MenuItem("GPIO switch", CallBackGPIOtest, submenu
                        { new MenuItemBoolean("GPIO16",16)
                        , new MenuItemBoolean("GPIO17",17)
                        , new MenuItemBoolean("GPIO 2", 2)
                        , new MenuItemBoolean("GPIO 5", 5)
+                       , new MenuItemNumeric("GPIO25",0,255,0,25,CallBackDACtest)
+                       , new MenuItemNumeric("GPIO26",0,255,0,26,CallBackDACtest)
                        } )
                      , new MenuItemBLE("BLE"   , BLEDemo() )
                      , new MenuItemSD("SD card", CallBackSDtest)
@@ -132,6 +136,21 @@ void CallBackGPIOtest(MenuItem* sender)
   digitalWrite(mi->tag, mi->value);
 }
 
+void CallBackDACtest(MenuItem* sender) 
+{
+  MenuItemNumeric* mi = static_cast<MenuItemNumeric*>(sender);
+  if (!mi) return;
+
+  pinMode(mi->tag, OUTPUT);
+  dacWrite(mi->tag, mi->value);
+}
+
+void CallBackBrightness(MenuItem* sender) 
+{
+  MenuItemNumeric* mi = static_cast<MenuItemNumeric*>(sender);
+  if (!mi) return;
+  M5.Lcd.setBrightness(mi->value*16);
+}
 
 void CallBackSDtest(MenuItem* sender) 
 {
