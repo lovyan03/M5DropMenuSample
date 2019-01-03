@@ -32,6 +32,13 @@ void CallBackMenuItem(MenuItem* sender)
   M5.Lcd.print(sender->title);
 }
 
+template <typename T>
+void CallBackExec(MenuItem* sender)
+{
+  T menu;
+  menu(sender);
+}
+
 void setup() {
   M5.begin();
 
@@ -64,13 +71,13 @@ void setup() {
                          } )
                        } )
                      , new MenuItem("Demo", submenu
-                       { new MenuItem("I2C Scanner", I2CScanner() )
-                       , new MenuItem("FIRE/GO AD34Mic FFT MultiTask", AD34FFTTaskDemo() )
-                       , new MenuItem("AD35 AD36 Input", ADInputDemo() )
-                       , new MenuItem("DHT12"  , DHT12Demo() )
-                       , new MenuItem("MPU9250", MPU9250Demo() )
-                       , new MenuItem("Scroll Demo", ScrollDemo())
-                       , new MenuItem("BLE Vroom Controller", VroomCtrlDemo() )
+                       { new MenuItem("I2C Scanner",          CallBackExec<I2CScanner> )
+                       , new MenuItem("FIRE/GO AD34Mic FFT MultiTask", CallBackExec<AD34FFTTaskDemo> )
+                       , new MenuItem("AD35 AD36 Input",      CallBackExec<ADInputDemo> )
+                       , new MenuItem("DHT12"  ,              CallBackExec<DHT12Demo> )
+                       , new MenuItem("MPU9250",              CallBackExec<MPU9250Demo> )
+                       , new MenuItem("Scroll Demo",          CallBackExec<ScrollDemo>)
+                       , new MenuItem("BLE Vroom Controller", CallBackExec<VroomCtrlDemo> )
                        } )
                      , new MenuItemNumeric("Brightness",1,15,5,CallBackBrightness)
                      , new MenuItem("GPIO switch", CallBackGPIOtest, submenu
@@ -100,28 +107,32 @@ void loop() {
   if (M5.BtnC.wasPressed()) { _menu.selectItem(); }
 
 #ifdef _GroveJoystick_h_
-  JoyStick.update();
-  if (JoyStick.wasLeft())    _menu.moveUp();
-  if (JoyStick.wasDown())    _menu.moveNext();
-  if (JoyStick.wasUp())      _menu.movePrev();
-  if (JoyStick.wasRight()
-   || JoyStick.wasPressed()) _menu.selectItem();
+  JoyStick.Rotate = 0;
+  if (JoyStick.update()) {
+    if (JoyStick.wasLeft())    _menu.moveUp();
+    if (JoyStick.wasDown())    _menu.moveNext();
+    if (JoyStick.wasUp())      _menu.movePrev();
+    if (JoyStick.wasRight()
+     || JoyStick.wasPressed()) _menu.selectItem();
+  }
 #endif
 #ifdef _FACESGameBoy_h_
-  FacesGameBoy.update();
-  if (FacesGameBoy.wasLeft()
-   || FacesGameBoy.wasPressedB()) _menu.moveUp();
-  if (FacesGameBoy.wasDown())     _menu.moveNext();
-  if (FacesGameBoy.wasUp())       _menu.movePrev();
-  if (FacesGameBoy.wasRight()
-   || FacesGameBoy.wasPressedA()) _menu.selectItem();
+  if (FacesGameBoy.update()) {
+    if (FacesGameBoy.wasLeft()
+     || FacesGameBoy.wasPressedB()) _menu.moveUp();
+    if (FacesGameBoy.wasDown())     _menu.moveNext();
+    if (FacesGameBoy.wasUp())       _menu.movePrev();
+    if (FacesGameBoy.wasRight()
+     || FacesGameBoy.wasPressedA()) _menu.selectItem();
+  }
 #endif
 #ifdef _PLUSEncoder_h_
-  PlusEncoder.update();
-  if (PlusEncoder.isLongClick()) _menu.moveUp();
-  if (PlusEncoder.wasDown())     _menu.moveNext();
-  if (PlusEncoder.wasUp())       _menu.movePrev();
-  if (PlusEncoder.isClick())     _menu.selectItem();
+  if (PlusEncoder.update()) {
+    if (PlusEncoder.isLongClick()) _menu.moveUp();
+    if (PlusEncoder.wasDown())     _menu.moveNext();
+    if (PlusEncoder.wasUp())       _menu.movePrev();
+    if (PlusEncoder.isClick())     _menu.selectItem();
+  }
 #endif
 
   ButtonDrawer::getInstance()->draw();
