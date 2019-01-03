@@ -9,6 +9,7 @@
 #include "MenuContainer.h"
 #include "MenuItemSD.h"
 #include "MenuItemBLE.h"
+#include "MenuItem\MenuItemBoolean.h"
 #include "MenuItem\MenuItemNumeric.h"
 #include "Demo\I2CScanner.h"
 #include "Demo\AD34FFTTaskDemo.h"

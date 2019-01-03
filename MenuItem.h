@@ -82,20 +82,4 @@ protected:
   Rect prevRect;    // previousDisplayPoint
 };
 
-class MenuItemBoolean : public MenuItem {
-public:
-  bool value = false;
-
-  MenuItemBoolean(const String& titleStr, int tg = 0, std::function<void(MenuItem*)> cb = 0)
-  : MenuItem(titleStr, tg, cb), value(false) {};
-
-  MenuItemBoolean(const String& titleStr, std::function<void(MenuItem*)> cb)
-  : MenuItem(titleStr, cb), value(false) {};
-
-  virtual void OnAfterDraw();
-  virtual void OnEnter();
-private:
-  void DrawSwitch(int mode);
-};
-
 #endif

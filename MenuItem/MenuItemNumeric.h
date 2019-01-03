@@ -19,34 +19,46 @@ public:
     DrawNum(value, fillColor);
   }
   virtual void OnEnter(){
+    while (M5.BtnC.isPressed()) M5.update();
     M5.Lcd.fillRect( rect.x+1, rect.y+1, rect.w-2, rect.h-2, fillColor);
     DrawTitle();
     ButtonDrawer btnDrawer;
     btnDrawer.setTitle("Back","-","+");
     DrawNum(value, cursorColor);
     int pv = value;
+    int repeat = 0;
     do {
-  #ifdef _PLUSEncoder_h_
+#ifdef _PLUSEncoder_h_
       PlusEncoder.update();
       if (PlusEncoder.isLongClick()) break;
       if (PlusEncoder.wasUp()   && value > minimum) { --value; if (callback) { callback(this); } }
       if (PlusEncoder.wasDown() && value < maximum) { ++value; if (callback) { callback(this); } }
-  #endif
+#endif
+#ifdef _FACESGameBoy_h_
+      FacesGameBoy.update();
+      if (FacesGameBoy.wasLeft()
+       || FacesGameBoy.wasPressedB()) break;
+      if (FacesGameBoy.isUp()   && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
+      if (FacesGameBoy.isDown() && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
+#endif
       M5.update();
-      if ((M5.BtnB.wasPressed() || M5.BtnB.pressedFor(150)) && value > minimum) { --value; if (callback) { callback(this); } }
-      if ((M5.BtnC.wasPressed() || M5.BtnC.pressedFor(150)) && value < maximum) { ++value; if (callback) { callback(this); } }
+      if ((M5.BtnB.wasPressed() || M5.BtnB.pressedFor(200)) && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
+      if ((M5.BtnC.wasPressed() || M5.BtnC.pressedFor(200)) && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
       btnDrawer.draw();
       if (pv != value) {
         DrawNum(value, cursorColor);
         pv = value;
+        if (0 < repeat && repeat < 100) delay(100 - repeat);
+      } else {
+        repeat = 0;
+        delay(10);
       }
-      delay(20);
     } while (!M5.BtnA.wasPressed());
   }
 private:
   void DrawNum(int value, uint16_t color)
   {
-    Rect area ( rect.x + rect.w * 3 / 4
+    Rect area ( rect.x + rect.w * 5 / 6 - 10
               , rect.y + rect.h / 6
               , rect.w / 6
               , rect.h -(rect.h / 6)*2);
