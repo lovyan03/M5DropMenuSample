@@ -11,6 +11,7 @@
 #include "MenuItemBLE.h"
 #include "MenuItem\MenuItemBoolean.h"
 #include "MenuItem\MenuItemNumeric.h"
+#include "Demo\SystemInfo.h"
 #include "Demo\I2CScanner.h"
 #include "Demo\AD34FFTTaskDemo.h"
 #include "Demo\ADInputDemo.h"
@@ -71,7 +72,8 @@ void setup() {
                          } )
                        } )
                      , new MenuItem("Demo", submenu
-                       { new MenuItem("I2C Scanner",          CallBackExec<I2CScanner> )
+                       { new MenuItem("System Information",   CallBackExec<SystemInfo> )
+                       , new MenuItem("I2C Scanner",          CallBackExec<I2CScanner> )
                        , new MenuItem("FIRE/GO AD34Mic FFT MultiTask", CallBackExec<AD34FFTTaskDemo> )
                        , new MenuItem("AD35 AD36 Input",      CallBackExec<ADInputDemo> )
                        , new MenuItem("DHT12"  ,              CallBackExec<DHT12Demo> )
