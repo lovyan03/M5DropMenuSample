@@ -29,21 +29,23 @@ public:
     int repeat = 0;
     do {
 #ifdef _PLUSEncoder_h_
-      PlusEncoder.update();
-      if (PlusEncoder.isLongClick()) break;
-      if (PlusEncoder.wasUp()   && value > minimum) { --value; if (callback) { callback(this); } }
-      if (PlusEncoder.wasDown() && value < maximum) { ++value; if (callback) { callback(this); } }
+      if (PlusEncoder.update()) {
+        if (PlusEncoder.isLongClick()) break;
+        if (PlusEncoder.wasUp()   && value < maximum) { ++value; if (callback) { callback(this); } }
+        if (PlusEncoder.wasDown() && value > minimum) { --value; if (callback) { callback(this); } }
+      }
 #endif
 #ifdef _FACESGameBoy_h_
-      FacesGameBoy.update();
-      if (FacesGameBoy.wasLeft()
-       || FacesGameBoy.wasPressedB()) break;
-      if (FacesGameBoy.isUp()   && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
-      if (FacesGameBoy.isDown() && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
+      if (FacesGameBoy.update()) {
+        if (FacesGameBoy.wasLeft()
+         || FacesGameBoy.wasPressedB()) break;
+        if (FacesGameBoy.isUp()   && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
+        if (FacesGameBoy.isDown() && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
+      }
 #endif
       M5.update();
-      if ((M5.BtnB.wasPressed() || M5.BtnB.pressedFor(200)) && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
-      if ((M5.BtnC.wasPressed() || M5.BtnC.pressedFor(200)) && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
+      if ((M5.BtnC.wasPressed() || M5.BtnC.pressedFor(250)) && value < maximum) { ++value; ++repeat; if (callback) { callback(this); } }
+      if ((M5.BtnB.wasPressed() || M5.BtnB.pressedFor(250)) && value > minimum) { --value; ++repeat; if (callback) { callback(this); } }
       btnDrawer.draw();
       if (pv != value) {
         DrawNum(value, cursorColor);
