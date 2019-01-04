@@ -6,9 +6,9 @@ Hierarchical drop down menu with M5Stack.
 M5Stackで階層ドロップダウンメニューを。
 
 ## Requirement
+AD34FFTTaskDemo.h required arduinoFFT by kosme (https://github.com/kosme/arduinoFFT)
 
-AD34FFTTaskDemo.h required arduinoFFT by kosme
-(https://github.com/kosme/arduinoFFT)
+arduinoFFTは ArduinoIDEの Library Managerから Installできます
 
 ## Licence
 
