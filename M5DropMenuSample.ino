@@ -101,12 +101,19 @@ void setup() {
 }
 
 
+uint32_t msecRepeatStart = 250;
+bool moving;
+
 void loop() {
   M5.update();
 
   if (M5.BtnA.wasPressed()) { _menu.moveUp();     }
   if (M5.BtnB.wasPressed()) { _menu.moveNext();   }
   if (M5.BtnC.wasPressed()) { _menu.selectItem(); }
+  if (!moving) {
+    if (M5.BtnA.pressedFor(msecRepeatStart)) { _menu.moveUp();   }
+    if (M5.BtnB.pressedFor(msecRepeatStart)) { _menu.moveNext(); }
+  }
 
 #ifdef _GroveJoystick_h_
   JoyStick.Rotate = 0;
@@ -126,6 +133,11 @@ void loop() {
     if (FacesGameBoy.wasUp())       _menu.movePrev();
     if (FacesGameBoy.wasRight()
      || FacesGameBoy.wasPressedA()) _menu.selectItem();
+    if (!moving) {
+      if (FacesGameBoy.pressedLeftFor(msecRepeatStart)) _menu.moveUp();
+      if (FacesGameBoy.pressedDownFor(msecRepeatStart)) _menu.moveNext();
+      if (FacesGameBoy.pressedUpFor(msecRepeatStart))   _menu.movePrev();
+    }
   }
 #endif
 #ifdef _PLUSEncoder_h_
@@ -138,7 +150,8 @@ void loop() {
 #endif
 
   ButtonDrawer::getInstance()->draw();
-  _menu.loop();
+  moving = _menu.loop();
+  if (!moving) { delay(1); }
 }
 
 void CallBackGPIOtest(MenuItem* sender) 

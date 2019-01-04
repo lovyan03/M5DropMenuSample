@@ -14,9 +14,9 @@ public:
     while (Wire.available()){
       Bit = Wire.read();
     }
+    if (PrevBit != Bit) _lastChange = millis();
     return true;
   }
-
   uint8_t Bit = 0x00;
   uint8_t PrevBit = 0x00;
   bool isUp()            { return !( Bit & 0x01 ); }
@@ -35,6 +35,16 @@ public:
   bool wasPressedB()      { return !( Bit & 0x20 ) && ( PrevBit & 0x20 ); }
   bool wasPressedStart()  { return !( Bit & 0x80 ) && ( PrevBit & 0x80 ); }
   bool wasPressedSelect() { return !( Bit & 0x40 ) && ( PrevBit & 0x40 ); }
+  bool pressedUpFor(uint32_t ms)     { return !( Bit & 0x01 ) && (millis() - _lastChange >= ms); }
+  bool pressedDownFor(uint32_t ms)   { return !( Bit & 0x02 ) && (millis() - _lastChange >= ms); }
+  bool pressedLeftFor(uint32_t ms)   { return !( Bit & 0x04 ) && (millis() - _lastChange >= ms); }
+  bool pressedRightFor(uint32_t ms)  { return !( Bit & 0x08 ) && (millis() - _lastChange >= ms); }
+  bool pressedAFor(uint32_t ms)      { return !( Bit & 0x10 ) && (millis() - _lastChange >= ms); }
+  bool pressedBFor(uint32_t ms)      { return !( Bit & 0x20 ) && (millis() - _lastChange >= ms); }
+  bool pressedStartFor(uint32_t ms)  { return !( Bit & 0x80 ) && (millis() - _lastChange >= ms); }
+  bool pressedSelectFor(uint32_t ms) { return !( Bit & 0x40 ) && (millis() - _lastChange >= ms); }
+private:
+  uint32_t _lastChange;
 };
 
 FACESGameBoy FacesGameBoy;

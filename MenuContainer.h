@@ -39,6 +39,7 @@ public:
   void moveUp() {
     _moving = true;
     if (selectedItem->parentItem != this) {
+      selectedItem->OnExit();
       selectedItem = selectedItem->parentItem;
       for (uint16_t i = 0; i != selectedItem->subItems.size(); ++i) {
         selectedItem->subItems[i]->Hide();
@@ -93,7 +94,7 @@ public:
       }
     }
   }
-  void loop() {
+  bool loop() {
     if (_moving || _force) {
       if (selectedItem->destRect.y < itemHeight/2) {
         DestRectYScroll(-selectedItem->destRect.y + itemHeight );
@@ -118,10 +119,10 @@ public:
       } else {
         Draw(_force, selectedItem);
       }
-    } else {
-      delay(16);
+      _force = false;
+      return true;
     }
-    _force = false;
+    return false;
   }
 };
 
