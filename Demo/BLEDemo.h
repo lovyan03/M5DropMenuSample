@@ -1,5 +1,5 @@
-#ifndef _BLEDemo_h_
-#define _BLEDemo_h_
+#ifndef _BLEDemo_H_
+#define _BLEDemo_H_
 
 #include <M5Stack.h>
 #include <BLERemoteCharacteristic.h>

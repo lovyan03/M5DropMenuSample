@@ -1,5 +1,5 @@
-#ifndef _GroveJoystick_h_
-#define _GroveJoystick_h_
+#ifndef _GroveJoystick_H_
+#define _GroveJoystick_H_
 
 #include <M5Stack.h>
 

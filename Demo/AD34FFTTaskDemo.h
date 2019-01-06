@@ -1,5 +1,5 @@
-#ifndef _AD34FFTTaskDemo_h_
-#define _AD34FFTTaskDemo_h_
+#ifndef _AD34FFTTaskDemo_H_
+#define _AD34FFTTaskDemo_H_
 #include "arduinoFFT.h"
 #include <M5Stack.h>
 
@@ -23,7 +23,7 @@ public:
         M5.update();
         if (M5.BtnB.wasPressed() &&  1 < decay) --decay;
         if (M5.BtnC.wasPressed() && 20 > decay) ++decay;
-#ifdef _PLUSEncoder_h_
+#ifdef _PLUSEncoder_H_
         PlusEncoder.update();
         if (PlusEncoder.isLongClick()) break;
         if (PlusEncoder.wasUp()   &&  1 < decay) --decay;

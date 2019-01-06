@@ -1,5 +1,5 @@
-#ifndef _VroomCtrlDemo_h_
-#define _VroomCtrlDemo_h_
+#ifndef _VroomCtrlDemo_H_
+#define _VroomCtrlDemo_H_
 
 #include "MenuItem.h"
 

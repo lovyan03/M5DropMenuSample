@@ -1,5 +1,5 @@
-#ifndef _I2CScanner_h_
-#define _I2CScanner_h_
+#ifndef _I2CScanner_H_
+#define _I2CScanner_H_
 
 #include <M5Stack.h>
 
