@@ -1,5 +1,5 @@
-#ifndef _FACESGameBoy_h_
-#define _FACESGameBoy_h_
+#ifndef _FACESGameBoy_H_
+#define _FACESGameBoy_H_
 
 #include <M5Stack.h>
 

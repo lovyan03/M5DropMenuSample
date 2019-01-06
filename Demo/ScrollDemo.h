@@ -1,5 +1,5 @@
-#ifndef _ScrollDemo_h_
-#define _ScrollDemo_h_
+#ifndef _ScrollDemo_H_
+#define _ScrollDemo_H_
 
 #include <M5Stack.h>
 

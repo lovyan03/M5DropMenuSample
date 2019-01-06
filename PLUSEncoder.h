@@ -1,5 +1,5 @@
-#ifndef _PLUSEncoder_h_
-#define _PLUSEncoder_h_
+#ifndef _PLUSEncoder_H_
+#define _PLUSEncoder_H_
 
 #include <M5Stack.h>
 

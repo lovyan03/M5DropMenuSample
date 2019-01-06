@@ -115,7 +115,7 @@ void loop() {
     if (M5.BtnB.pressedFor(msecRepeatStart)) { _menu.moveNext(); }
   }
 
-#ifdef _GroveJoystick_h_
+#ifdef _GroveJoystick_H_
   JoyStick.Rotate = 0;
   if (JoyStick.update()) {
     if (JoyStick.wasLeft())    _menu.moveUp();
@@ -125,7 +125,7 @@ void loop() {
      || JoyStick.wasPressed()) _menu.selectItem();
   }
 #endif
-#ifdef _FACESGameBoy_h_
+#ifdef _FACESGameBoy_H_
   if (FacesGameBoy.update()) {
     if (FacesGameBoy.wasLeft()
      || FacesGameBoy.wasPressedB()) _menu.moveUp();
@@ -140,7 +140,7 @@ void loop() {
     }
   }
 #endif
-#ifdef _PLUSEncoder_h_
+#ifdef _PLUSEncoder_H_
   if (PlusEncoder.update()) {
     if (PlusEncoder.isLongClick()) _menu.moveUp();
     if (PlusEncoder.wasDown())     _menu.moveNext();

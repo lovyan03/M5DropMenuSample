@@ -1,5 +1,5 @@
-#ifndef _DHT12Demo_h_
-#define _DHT12Demo_h_
+#ifndef _DHT12Demo_H_
+#define _DHT12Demo_H_
 
 #include <M5Stack.h>
 

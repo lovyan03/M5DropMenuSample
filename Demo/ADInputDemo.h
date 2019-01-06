@@ -1,5 +1,5 @@
-#ifndef _ADInputDemo_h_
-#define _ADInputDemo_h_
+#ifndef _ADInputDemo_H_
+#define _ADInputDemo_H_
 
 #include <M5Stack.h>
 

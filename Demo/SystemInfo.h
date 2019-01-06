@@ -1,5 +1,5 @@
-#ifndef _SystemInfo_h_
-#define _SystemInfo_h_
+#ifndef _SystemInfo_H_
+#define _SystemInfo_H_
 
 #include <M5Stack.h>
 

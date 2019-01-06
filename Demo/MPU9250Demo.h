@@ -1,5 +1,5 @@
-#ifndef _MPU9250Demo_h_
-#define _MPU9250Demo_h_
+#ifndef _MPU9250Demo_H_
+#define _MPU9250Demo_H_
 
 #include <M5Stack.h>
 #include "utility/MPU9250.h"

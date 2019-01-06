@@ -28,14 +28,14 @@ public:
     int pv = value;
     int repeat = 0;
     do {
-#ifdef _PLUSEncoder_h_
+#ifdef _PLUSEncoder_H_
       if (PlusEncoder.update()) {
         if (PlusEncoder.isLongClick()) break;
         if (PlusEncoder.wasUp()   && value < maximum) { ++value; if (callback) { callback(this); } }
         if (PlusEncoder.wasDown() && value > minimum) { --value; if (callback) { callback(this); } }
       }
 #endif
-#ifdef _FACESGameBoy_h_
+#ifdef _FACESGameBoy_H_
       if (FacesGameBoy.update()) {
         if (FacesGameBoy.wasLeft()
          || FacesGameBoy.wasPressedB()) break;
